@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>کتابخانه من · My Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f0f0e;--surface:#191918;--surface2:#222220;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e8e4dc;--text2:#9a9488;--text3:#5c5952;
+  --gold:#c9a86c;--teal:#8db4a3;--rose:#b08fa0;--blue:#7a9db5;--red:#a87c6e;--green:#8e9e72;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.layout{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:270px;min-width:270px;background:var(--surface);border-right:1px solid var(--border);padding:28px 0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border2);}
+.sb-header{padding:0 22px 22px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.sb-title{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);letter-spacing:0.04em;margin-bottom:3px;}
+.sb-sub{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;}
+.sb-sec{padding:10px 22px 4px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;}
+.sb-item{display:flex;align-items:center;gap:9px;padding:7px 22px;cursor:pointer;font-size:12.5px;color:var(--text2);border-left:2px solid transparent;transition:all 0.15s;text-decoration:none;user-select:none;}
+.sb-item:hover{background:var(--surface2);color:var(--text);}
+.sb-item.active{background:var(--surface2);color:var(--text);border-left-color:var(--gold);}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* MAIN */
+.main{flex:1;padding:44px 52px;max-width:920px;}
+.page{display:none;}
+.page.active{display:block;animation:fi 0.22s ease;}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* HOME */
+.h-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:10px;}
+.h-title{font-family:'Playfair Display',serif;font-size:36px;font-weight:500;line-height:1.15;margin-bottom:14px;}
+.h-title span{color:var(--gold);}
+.h-desc{font-size:13.5px;color:var(--text2);line-height:1.75;max-width:520px;margin-bottom:36px;}
+.cat-label{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:14px;margin-top:36px;padding-bottom:7px;border-bottom:1px solid var(--border);}
+.book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-bottom:4px;}
+.bc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden;}
+.bc::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--ca,var(--gold));border-radius:10px 0 0 10px;}
+.bc:hover{background:var(--surface2);border-color:var(--border2);transform:translateY(-2px);}
+.bc-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:500;color:var(--text);line-height:1.3;margin-bottom:4px;}
+.bc-auth{font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-bottom:10px;}
+.bc-sum{font-size:12px;color:var(--text2);line-height:1.65;direction:rtl;text-align:right;}
+.badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;letter-spacing:0.03em;border:1px solid;}
+
+/* BOOK PAGE */
+.bp-back{font-size:12px;color:var(--text3);cursor:pointer;margin-bottom:28px;display:inline-flex;align-items:center;gap:6px;transition:color 0.15s;background:none;border:none;font-family:inherit;}
+.bp-back:hover{color:var(--gold);}
+.bp-header{margin-bottom:36px;padding-bottom:28px;border-bottom:1px solid var(--border);}
+.bp-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:8px;}
+.bp-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:500;color:var(--text);line-height:1.2;margin-bottom:7px;}
+.bp-auth{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--gold);margin-bottom:18px;}
+.pl{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--gold);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 13px;text-decoration:none;transition:all 0.15s;margin-top:10px;margin-right:8px;}
+.pl:hover{border-color:var(--gold);}
+
+.sec{margin-bottom:30px;}
+.sec-h{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.bq{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:var(--text);line-height:1.5;font-style:italic;padding:20px 24px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;direction:rtl;text-align:right;}
+.tb{font-size:13.5px;color:var(--text2);line-height:1.85;}
+.tb-fa{font-size:13.5px;color:var(--text2);line-height:1.9;direction:rtl;text-align:right;}
+.tb-fa p{margin-bottom:0.75em;}
+.tb-fa p:last-child{margin-bottom:0;}
+.ref-list{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.ref-item{display:flex;gap:11px;align-items:flex-start;font-size:12.5px;padding:9px 13px;background:var(--surface);border:1px solid var(--border);border-radius:8px;}
+.rdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.rn{color:var(--text);font-weight:500;}
+.rd{color:var(--text2);font-size:11.5px;margin-top:2px;}
+.yt{background:var(--surface);border:1px dashed var(--border2);border-radius:10px;padding:18px 22px;font-size:12.5px;color:var(--text3);font-style:italic;direction:rtl;text-align:right;line-height:1.7;}
+.yt-lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:7px;font-style:normal;}
+.lec-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin-bottom:9px;}
+.lec-title{font-size:13.5px;color:var(--text);margin-bottom:3px;}
+.lec-meta{font-size:11.5px;color:var(--text3);}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-header">
+    <div class="sb-title">کتابخانه من</div>
+    <div class="sb-sub">My Reading Archive</div>
+  </div>
+  <div class="sb-sec">Home</div>
+  <a class="sb-item active" onclick="go('home',this)"><span class="dot" style="background:var(--gold)"></span>همه کتاب‌ها</a>
+  <div class="sb-sec">Mind & Society</div>
+  <a class="sb-item" onclick="go('superbloom',this)"><span class="dot" style="background:var(--teal)"></span>Superbloom</a>
+  <a class="sb-item" onclick="go('ideological-brain',this)"><span class="dot" style="background:var(--teal)"></span>The Ideological Brain</a>
+  <a class="sb-item" onclick="go('look-again',this)"><span class="dot" style="background:var(--teal)"></span>Look Again</a>
+  <a class="sb-item" onclick="go('before-you-know-it',this)"><span class="dot" style="background:var(--teal)"></span>Before You Know It</a>
+  <a class="sb-item" onclick="go('suggestible-brain',this)"><span class="dot" style="background:var(--teal)"></span>The Suggestible Brain</a>
+  <div class="sb-sec">Trauma & Identity</div>
+  <a class="sb-item" onclick="go('end-of-trauma',this)"><span class="dot" style="background:var(--rose)"></span>The End of Trauma</a>
+  <a class="sb-item" onclick="go('mattering',this)"><span class="dot" style="background:var(--rose)"></span>Mattering</a>
+  <div class="sb-sec">Trading & Markets</div>
+  <a class="sb-item" onclick="go('dog-wolf',this)"><span class="dot" style="background:var(--gold)"></span>The Hour Between Dog and Wolf</a>
+  <a class="sb-item" onclick="go('market-wizards-1',this)"><span class="dot" style="background:var(--gold)"></span>Market Wizards 1</a>
+  <a class="sb-item" onclick="go('market-wizards-2',this)"><span class="dot" style="background:var(--gold)"></span>Market Wizards 2 (New)</a>
+  <a class="sb-item" onclick="go('trading-zone',this)"><span class="dot" style="background:var(--gold)"></span>Trading in the Zone</a>
+  <a class="sb-item" onclick="go('global-macro',this)"><span class="dot" style="background:var(--gold)"></span>Global Macro Trading</a>
+  <a class="sb-item" onclick="go('algo-trading',this)"><span class="dot" style="background:var(--gold)"></span>Advanced Algo Trading</a>
+  <a class="sb-item" onclick="go('ml-finance',this)"><span class="dot" style="background:var(--gold)"></span>Advances in Financial ML</a>
+  <div class="sb-sec">History & Empires</div>
+  <a class="sb-item" onclick="go('when-money-dies',this)"><span class="dot" style="background:var(--red)"></span>When Money Dies</a>
+  <a class="sb-item" onclick="go('end-times',this)"><span class="dot" style="background:var(--red)"></span>End Times</a>
+  <a class="sb-item" onclick="go('war-peace-war',this)"><span class="dot" style="background:var(--red)"></span>War and Peace and War</a>
+  <div class="sb-sec">Fiction & Philosophy</div>
+  <a class="sb-item" onclick="go('veronika',this)"><span class="dot" style="background:var(--rose)"></span>Veronika beschließt zu sterben</a>
+  <div class="sb-sec">Lectures , Dr. Mokri</div>
+  <a class="sb-item" onclick="go('lec-time',this)"><span class="dot" style="background:var(--text3)"></span>چرا آخرش وقت کم می‌آوریم؟</a>
+  <a class="sb-item" onclick="go('lec-decisions',this)"><span class="dot" style="background:var(--text3)"></span>تصمیم‌گیری آگاهانه</a>
+  <a class="sb-item" onclick="go('lec-crisis',this)"><span class="dot" style="background:var(--text3)"></span>چه کسانی نمی‌شکنند؟</a>
+  <a class="sb-item" onclick="go('lec-schizo',this)"><span class="dot" style="background:var(--text3)"></span>تاریخچه اسکیزوفرنی</a>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- HOME -->
+<div class="page active" id="home">
+  <div class="h-eyebrow">Personal Reading Archive · آرشیو شخصی</div>
+  <h1 class="h-title">کتاب‌هایی که<br><span>خوندم</span></h1>
+  <p class="h-desc">آرشیو شخصی از کتاب‌هایی که خوندم , با خلاصه فارسی، سوال اصلی، و منابع هر کتاب.</p>
+
+  <div class="cat-label">Mind, Psychology & Society</div>
+  <div class="book-grid">
+    <div class="bc" style="--ca:var(--teal)" onclick="go('superbloom',null)"><div class="bc-title">Superbloom</div><div class="bc-auth">Nicholas Carr · 2025</div><div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">Tech</span><span class="badge" style="color:var(--gold);border-color:#c9a86c20;background:#c9a86c10">Society</span></div><div class="bc-sum">چرا شبکه‌های اجتماعی به جای همدلی، قطبی‌شدن ایجاد کردن؟</div></div>
+    <div class="bc" style="--ca:var(--teal)" onclick="go('ideological-brain',null)"><div class="bc-title">The Ideological Brain</div><div class="bc-auth">Leor Zmigrod · 2024</div><div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">Neuro</span><span class="badge" style="color:var(--rose);border-color:#b08fa020;background:#b08fa010">Politics</span></div><div class="bc-sum">ریشه‌های زیست‌شناختی گرایش به ایدئولوژی‌های افراطی</div></div>
+    <div class="bc" style="--ca:var(--teal)" onclick="go('look-again',null)"><div class="bc-title">Look Again</div><div class="bc-auth">Sharot & Sunstein · 2024</div><div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">Psych</span><span class="badge" style="color:var(--gold);border-color:#c9a86c20;background:#c9a86c10">Habit</span></div><div class="bc-sum">مغز به همه چیز عادت می‌کنه , چطور این چرخه رو بشکنیم؟</div></div>
+    <div class="bc" style="--ca:var(--teal)" onclick="go('before-you-know-it',null)"><div class="bc-title">Before You Know It</div><div class="bc-auth">John Bargh · 2017</div><div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">Unconscious</span></div><div class="bc-sum">بیشتر از چیزی که فکر می‌کنیم، ناخودآگاهمون تصمیم می‌گیره</div></div>
+    <div class="bc" style="--ca:var(--teal)" onclick="go('suggestible-brain',null)"><div class="bc-title">The Suggestible Brain</div><div class="bc-auth">Amir Raz · 2023</div><div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">Neuro</span><span class="badge" style="color:var(--rose);border-color:#b08fa020;background:#b08fa010">Placebo</span></div><div class="bc-sum">باور و انتظار واقعاً مغز و جسم ما رو تغییر می‌دن</div></div>
+  </div>
+
+  <div class="cat-label">Trauma & Identity</div>
+  <div class="book-grid">
+    <div class="bc" style="--ca:var(--rose)" onclick="go('end-of-trauma',null)"><div class="bc-title">The End of Trauma</div><div class="bc-auth">George Bonanno · 2021</div><div class="badges"><span class="badge" style="color:var(--rose);border-color:#b08fa020;background:#b08fa010">Trauma</span><span class="badge" style="color:var(--green);border-color:#8e9e7220;background:#8e9e7210">Resilience</span></div><div class="bc-sum">درباره تروما بیش از حد بدبینیم , انسان‌ها تاب‌آورتر از چیزی هستن که فکر می‌کنیم</div></div>
+    <div class="bc" style="--ca:var(--rose)" onclick="go('mattering',null)"><div class="bc-title">Mattering</div><div class="bc-auth">Prilleltensky · 2023</div><div class="badges"><span class="badge" style="color:var(--rose);border-color:#b08fa020;background:#b08fa010">Wellbeing</span><span class="badge" style="color:var(--gold);border-color:#c9a86c20;background:#c9a86c10">Identity</span></div><div class="bc-sum">«دیده شدن» عمیق‌ترین نیاز روانی ماست , نه موفقیت، نه پول</div></div>
+  </div>
+
+  <div class="cat-label">Trading, Markets & Finance</div>
+  <div class="book-grid">
+    <div class="bc" style="--ca:var(--gold)" onclick="go('dog-wolf',null)"><div class="bc-title">The Hour Between Dog and Wolf</div><div class="bc-auth">John Coates · 2012</div><div class="badges"><span class="badge" style="color:var(--gold);border-color:#c9a86c20;background:#c9a86c10">Neuro</span><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">Trading</span></div><div class="bc-sum">تستوسترون و کورتیزول حباب‌ها و سقوط بازارها رو می‌سازن</div></div>
+    <div class="bc" style="--ca:var(--gold)" onclick="go('market-wizards-1',null)"><div class="bc-title">Market Wizards</div><div class="bc-auth">Jack Schwager · 1989</div><div class="badges"><span class="badge" style="color:var(--gold);border-color:#c9a86c20;background:#c9a86c10">Trading</span><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">Interviews</span></div><div class="bc-sum">مصاحبه با بزرگ‌ترین تریدرهای تاریخ , از Paul Tudor Jones تا Ed Seykota</div></div>
+    <div class="bc" style="--ca:var(--gold)" onclick="go('market-wizards-2',null)"><div class="bc-title">The New Market Wizards</div><div class="bc-auth">Jack Schwager · 1992</div><div class="badges"><span class="badge" style="color:var(--gold);border-color:#c9a86c20;background:#c9a86c10">Trading</span><span class="badge" style="color:var(--blue);border-color:#7a9db520;background:#7a9db510">Macro</span></div><div class="bc-sum">نسل بعدی جادوگران , از Druckenmiller تا Lipschutz</div></div>
+    <div class="bc" style="--ca:var(--gold)" onclick="go('trading-zone',null)"><div class="bc-title">Trading in the Zone</div><div class="bc-auth">Mark Douglas · 2000</div><div class="badges"><span class="badge" style="color:var(--gold);border-color:#c9a86c20;background:#c9a86c10">Psychology</span><span class="badge" style="color:var(--rose);border-color:#b08fa020;background:#b08fa010">Mindset</span></div><div class="bc-sum">اکثر تریدرها نه به خاطر استراتژی، به خاطر ذهنشون شکست می‌خورن</div></div>
+    <div class="bc" style="--ca:var(--gold)" onclick="go('global-macro',null)"><div class="bc-title">Global Macro Trading</div><div class="bc-auth">Greg Gliner · 2014</div><div class="badges"><span class="badge" style="color:var(--gold);border-color:#c9a86c20;background:#c9a86c10">Macro</span><span class="badge" style="color:var(--blue);border-color:#7a9db520;background:#7a9db510">FX</span></div><div class="bc-sum">چطور اقتصاد کلان دنیا رو به پوزیشن تبدیل کنیم</div></div>
+    <div class="bc" style="--ca:var(--gold)" onclick="go('algo-trading',null)"><div class="bc-title">Advanced Algorithmic Trading</div><div class="bc-auth">Michael Halls-Moore · 2017</div><div class="badges"><span class="badge" style="color:var(--gold);border-color:#c9a86c20;background:#c9a86c10">Quant</span><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">Python</span></div><div class="bc-sum">ساخت سیستم‌های ترید الگوریتمی از صفر تا پیاده‌سازی</div></div>
+    <div class="bc" style="--ca:var(--gold)" onclick="go('ml-finance',null)"><div class="bc-title">Advances in Financial ML</div><div class="bc-auth">Marcos Lopez de Prado · 2018</div><div class="badges"><span class="badge" style="color:var(--gold);border-color:#c9a86c20;background:#c9a86c10">ML</span><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">Quant</span></div><div class="bc-sum">یادگیری ماشین در فاینانس , ولی با دیدگاه یه پژوهشگر واقعی که pitfallها رو می‌شناسه</div></div>
+  </div>
+
+  <div class="cat-label">History, Empires & Political Cycles</div>
+  <div class="book-grid">
+    <div class="bc" style="--ca:var(--red)" onclick="go('when-money-dies',null)"><div class="bc-title">When Money Dies</div><div class="bc-auth">Adam Fergusson · 1975</div><div class="badges"><span class="badge" style="color:var(--red);border-color:#a87c6e20;background:#a87c6e10">History</span><span class="badge" style="color:var(--gold);border-color:#c9a86c20;background:#c9a86c10">Economy</span></div><div class="bc-sum">آلمان ۱۹۲۳ , وقتی پول بی‌ارزش شد و جامعه از هم پاشید</div></div>
+    <div class="bc" style="--ca:var(--red)" onclick="go('end-times',null)"><div class="bc-title">End Times</div><div class="bc-auth">Peter Turchin · 2023</div><div class="badges"><span class="badge" style="color:var(--red);border-color:#a87c6e20;background:#a87c6e10">Politics</span><span class="badge" style="color:var(--rose);border-color:#b08fa020;background:#b08fa010">History</span></div><div class="bc-sum">علم تاریخ پیشگویانه , چرا جوامع سقوط می‌کنن و الان کجای چرخه‌ایم</div></div>
+    <div class="bc" style="--ca:var(--red)" onclick="go('war-peace-war',null)"><div class="bc-title">War and Peace and War</div><div class="bc-auth">Peter Turchin · 2006</div><div class="badges"><span class="badge" style="color:var(--red);border-color:#a87c6e20;background:#a87c6e10">Empires</span><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">Cliodynamics</span></div><div class="bc-sum">چرا امپراتوری‌ها ظهور و سقوط می‌کنن , با مدل‌های ریاضی از تاریخ</div></div>
+  </div>
+  <div class="cat-label">Fiction & Philosophy</div>
+  <div class="book-grid">
+    <div class="bc" style="--ca:var(--rose)" onclick="go('veronika',null)"><div class="bc-title">Veronika beschließt zu sterben</div><div class="bc-auth">Paulo Coelho · 1998</div><div class="badges"><span class="badge" style="color:var(--rose);border-color:#b08fa020;background:#b08fa010">Novel</span><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">Existentialism</span></div><div class="bc-sum">ورونیکا تصمیم می‌گیره بمیره , نه از سر بدبختی، بلکه از سر بی‌معنایی. اما دقیقاً وقتی روبرو با مرگ می‌شه، زندگی رو کشف می‌کنه.</div></div>
+  </div>
+
+  <div class="cat-label">Lectures , Dr. Azarakhsh Mokri</div>
+  <div class="book-grid">
+    <div class="bc" style="--ca:var(--text3)" onclick="go('lec-time',null)"><div class="bc-title">چرا آخرش وقت کم می‌آوریم؟</div><div class="bc-auth">دکتر مکری · March 2025</div><div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">Time</span><span class="badge" style="color:var(--gold);border-color:#c9a86c20;background:#c9a86c10">Bias</span></div><div class="bc-sum">چرا همیشه وقت کم میاریم حتی با تجربه قبلی، و چطور این چرخه رو بشکنیم</div></div>
+    <div class="bc" style="--ca:var(--text3)" onclick="go('lec-decisions',null)"><div class="bc-title">تصمیم‌گیری آگاهانه در مقابل افکار خودکار</div><div class="bc-auth">دکتر مکری · February 2025</div><div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">System 1,2</span><span class="badge" style="color:var(--rose);border-color:#b08fa020;background:#b08fa010">Bias</span></div><div class="bc-sum">سیستم ۱ و ۲ در زندگی واقعی، سوگیری تأیید، و مستهلک کردن رفتارهای خودکار</div></div>
+    <div class="bc" style="--ca:var(--text3)" onclick="go('lec-crisis',null)"><div class="bc-title">چه کسانی در بحران‌ها نمی‌شکنند؟</div><div class="bc-auth">مکری و صدری · September 2025</div><div class="badges"><span class="badge" style="color:var(--rose);border-color:#b08fa020;background:#b08fa010">Resilience</span></div><div class="bc-sum">گفتگو درباره تاب‌آوری واقعی از دیدگاه بالینی، نه کلیشه‌ای</div></div>
+    <div class="bc" style="--ca:var(--text3)" onclick="go('lec-schizo',null)"><div class="bc-title">تاریخچه اسکیزوفرنی در روانپزشکی</div><div class="bc-auth">دکتر مکری · October 2024</div><div class="badges"><span class="badge" style="color:var(--blue);border-color:#7a9db520;background:#7a9db510">History</span><span class="badge" style="color:var(--teal);border-color:#8db4a320;background:#8db4a310">Psychiatry</span></div><div class="bc-sum">از Kraepelin تا DSM-5, ۱۵۰ سال تحول در فهم یکی از پیچیده‌ترین اختلالات</div></div>
+  </div>
+
+</div>
+
+<!-- ===== BOOK PAGES ===== -->
+
+<!-- SUPERBLOOM -->
+<div class="page" id="superbloom">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Technology · Society · Psychology · Non-fiction</div>
+  <h1 class="bp-title">Superbloom</h1>
+  <div class="bp-auth">Nicholas Carr · W. W. Norton · 2025</div>
+  <div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Technology</span><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Society</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Psychology</span><span class="badge" style="color:var(--blue);border-color:#7a9db530;background:#7a9db510">Media</span></div>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000711976522" target="_blank">▶ پادکست دکتر مکری</a>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">چرا با وجود بیشترین ارتباط در تاریخ، بیشترین تنش، قطبی‌شدن و سوءتفاهم رو تجربه می‌کنیم؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>کار کتاب رو با یه تصویر واقعی شروع می‌کنه: در بهار ۲۰۱۹، خبر شکوفایی گل‌های پاپاوِر در دره‌ای در کالیفرنیا روی اینستاگرام پیچید. هزاران نفر ریختن و گل‌ها رو لگد کردن، کندن و نابود کردن , همه برای گرفتن عکس سلفی. این «سوپربلوم» استعاره اصلی کتابه: رشد انفجاری پیام‌ها که به جای زیبایی، خرابی می‌سازه.</p>
+<p>ادعای مرکزی کار اینه که خوش‌بینی اولیه , که اگه همه به هم وصل بشن، همدلی و تفاهم میاد , محقق نشده و نمی‌شه. دلیلش اینه که وقتی حجم پیام منفجر می‌شه، توجه انسانی کمیاب‌ترین منبع می‌شه. برای جنگ برای توجه، محتوا باید هیجانی‌تر و شدیدتر باشه , نه لزوماً درست‌تر.</p>
+<p>کار از تحقیقات روانشناسی کلیدی استفاده می‌کنه: مطالعه «dissimilarity cascade» مایکل نورتون از هاروارد نشون می‌ده که هر چه بیشتر درباره یه آدم بدونیم، احتمالاً کمتر ازش خوشمون میاد , چون تفاوت‌ها برجسته‌تر می‌شن. شبکه‌های اجتماعی این پدیده رو به مقیاس صدها میلیون آدم می‌رسونن.</p>
+<p>یه نکته مهم: اصطکاک طبیعی که ما رو وادار به تأمل می‌کرد از بین رفته. در دوره نامه کاغذی، نوشتن جواب زمان می‌برد. حتی توییتر اولیه، قبل از دکمه ریتوییت، اطلاعات غلط کمتری پخش می‌کرد. اضافه شدن یه دکمه ساده، رفتار جمعی رو به طور بنیادین تغییر داد.</p>
+<p>کار «سیستم ۱ و ۲» کانمان رو هم وارد می‌کنه: شبکه‌های اجتماعی ما رو در تفکر سریع، احساسی و واکنشی (سیستم ۱) نگه می‌دارن و تفکر کند، تحلیلی و انتقادی (سیستم ۲) رو خاموش می‌کنن. الگوریتم‌ها این رو تقویت می‌کنن چون محتوای احساسی بیشتر کلیک می‌گیره.</p>
+<p>راه‌حل کار اضافه کردن «اصطکاک» عمدیه: کند کردن اشتراک‌گذاری، پرسیدن «آیا مطمئنی؟» قبل از ریتوییت کردن. این نه سانسور، بلکه بازگرداندن فضای تأمله.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">The Shallows , Nicholas Carr (2010)</div><div class="rd">کتاب قبلی کار , اینترنت چطور تفکر عمیق رو از بین می‌بره</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Thinking, Fast and Slow , Daniel Kahneman</div><div class="rd">سیستم ۱ و ۲ تفکر , پایه نظری بخش مهمی از کتاب</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Charles Horton Cooley (1897) , "The Process of Social Change"</div><div class="rd">اولین کسی که اصطلاح «رسانه اجتماعی» رو ۱۲۸ سال پیش ابداع کرد</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Marshall McLuhan , "The Medium is the Message"</div><div class="rd">کار این ایده رو برای عصر دیجیتال به‌روز می‌کنه</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Michael Norton et al. , Dissimilarity Cascade (Harvard, 2007)</div><div class="rd">اطلاعات بیشتر درباره یه نفر → دوست داشتن کمتر</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Sherry Turkle , Alone Together</div><div class="rd">شبکه اجتماعی به عنوان «ماشین ضد همدلی»</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Twitter Retweet Button Case Study</div><div class="rd">یه دکمه ساده چطور میزان اشتراک‌گذاری اطلاعات غلط رو منفجر کرد</div></div></li>
+</ul></div>
+</div>
+
+<!-- IDEOLOGICAL BRAIN -->
+<div class="page" id="ideological-brain">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Neuroscience · Political Psychology · Extremism</div>
+  <h1 class="bp-title">The Ideological Brain</h1>
+  <div class="bp-auth">Leor Zmigrod · Cambridge University Press · 2024</div>
+  <div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Neuroscience</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Politics</span><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Extremism</span></div>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000732126006" target="_blank">▶ پادکست دکتر مکری</a>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">آیا گرایش به ایدئولوژی‌های افراطی ریشه زیست‌شناختی داره , یا فقط محصول محیط و شرایطه؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>لئور ذمیگرود، عصب‌شناس جوان کمبریج، سال‌ها روی یه سوال کار کرده: چرا بعضی آدم‌ها بیشتر از بقیه به ایدئولوژی‌های سفت و سخت کشیده می‌شن؟ کتاب جواب جالبی داره: نه به خاطر محتوای ایدئولوژی، بلکه به خاطر ساختار شناختی مغزشون.</p>
+<p>یه مفهوم محوری کتاب «سرسختی شناختی» (cognitive rigidity) یا «انعطاف‌ناپذیری ذهنی» هست. آدم‌هایی که این خصیصه رو دارن در آزمون‌های شناختی بدتر می‌تونن از یه چارچوب ذهنی به چارچوب دیگه بپرن، با ابهام تحمل کمتری دارن، و نیاز بیشتری به قطعیت و بسته‌بودن دارن.</p>
+<p>کشف جالب: این ویژگی‌های شناختی در افراطی‌های سیاسی چپ و راست، مذهبی و ضدمذهبی، به طور مشابه دیده می‌شن , حتی اگه محتوای باورهاشون کاملاً متضاد باشه. پس مشکل محتوا نیست، مشکل نحوه پردازش اطلاعاته.</p>
+<p>ذمیگرود از fMRI و آزمون‌های شناختی استفاده کرده تا نشون بده این تفاوت‌ها قابل اندازه‌گیری و واقعی‌ان. مغز افراد rigid به محرک‌های جدید پاسخ متفاوتی می‌ده.</p>
+<p>این نگاه چند تبعات مهم داره: اول، سیاست رو نمی‌شه فقط با آموزش درست کرد. دوم، بسیاری از درگیری‌های ایدئولوژیک در واقع جنگ بین «سبک‌های» مختلف تفکرن، نه فقط «محتوا». سوم، جوامع می‌تونن با طراحی محیط‌های شناختی مناسب‌تر، افراط‌گرایی رو کاهش بدن.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Zmigrod's Cambridge cognitive flexibility research</div><div class="rd">مطالعات fMRI و آزمون‌های شناختی روی طیف‌های سیاسی مختلف</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Need for Cognitive Closure (Kruglanski)</div><div class="rd">تئوری پایه‌ای درباره نیاز به قطعیت و تأثیرش بر باورها</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Jonathan Haidt , The Righteous Mind</div><div class="rd">روانشناسی اخلاق سیاسی , کتاب موازی مهم</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Big Five personality traits and political orientation research</div><div class="rd">رابطه openness to experience با باورهای سیاسی</div></div></li>
+</ul></div>
+</div>
+
+<!-- LOOK AGAIN -->
+<div class="page" id="look-again">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Psychology · Behavioral Science · Habit</div>
+  <h1 class="bp-title">Look Again</h1>
+  <div class="bp-auth">Tali Sharot & Cass Sunstein · MIT Press · 2024</div>
+  <div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Psychology</span><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Habit</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Attention</span></div>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000738994149" target="_blank">▶ پادکست دکتر مکری</a>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">چرا مغز ما به همه چیز عادت می‌کنه , از لذت‌ها تا خطرها , و چطور می‌شه این چرخه رو شکست؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>شاروت (نوروساینتیست) و سانستاین (حقوقدان و نویسنده «تلنگر» و «نویز») با هم کتابی نوشتن درباره پدیده‌ای که همیشه درباره‌اش می‌دونستیم ولی کمتر جدی گرفتیم: habituation یا «عادت‌کنندگی».</p>
+<p>مغز ما سیستمی داره که به محرک‌های تکراری پاسخ کمتر و کمتری می‌ده. این در دوران تکامل عالی بود , منابع ذهنی رو برای محرک‌های جدید نگه می‌داشت. ولی در دنیای مدرن می‌تونه مشکل‌ساز باشه.</p>
+<p>عادت‌کنندگی چند پیامد داریم که کتاب با جزئیات بررسی می‌کنه: اول، به لذت‌ها عادت می‌کنیم , رابطه‌ی خوب، شغل خوب، مکان خوب. دیگه اونقدر قدرشون رو نمی‌دونیم. دوم، به خطرات عادت می‌کنیم , تغییر آب‌وهوا، نابرابری، خبرهای بد , و دیگه توجهمون به اونا کم می‌شه. سوم، به باورهامون عادت می‌کنیم و هر چیز جدیدی رو با عدسی اونا فیلتر می‌کنیم.</p>
+<p>کتاب نشون می‌ده که قطع عادت می‌تونه هم لذت رو برگردونه، هم توجه به مشکلات رو تجدید کنه. مثلاً مطالعاتی نشون داده که مرخصی کوتاه از یه چیز خوب، باعث می‌شه وقتی برمی‌گردیم دوباره ازش لذت ببریم , مثل یه غذای مورد علاقه که اگه هر روز نخوریش، هر بار خوردنش لذت‌بخش‌تره.</p>
+<p>از طرف دیگه، قطع مواجهه با ترس‌ها و مشکلات می‌تونه واکنش عاطفی رو دوباره فعال کنه. این چالش بزرگیه برای سیاست‌گذاری عمومی , چطور آدم‌ها رو به مشکلاتی که بهشون عادت کردن، دوباره حساس کنیم؟</p>
+<p>راه‌حل‌های کتاب شامل می‌شه: diversification of experience، intermittent exposure، و «نگاه دوباره» , یعنی عمداً به چیزهایی که داریم نگاه کنیم انگار اولین باره.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Nudge , Thaler & Sunstein (2008)</div><div class="rd">کتاب پایه‌ای سانستاین درباره معماری انتخاب</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Noise , Kahneman, Sibony & Sunstein (2021)</div><div class="rd">خطاهای تصادفی در قضاوت , کتاب قبلی سانستاین</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Optimism Bias , Tali Sharot (2011)</div><div class="rd">کار کلاسیک شاروت درباره تعصب خوش‌بینی در مغز</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Hedonic adaptation research (Lyubomirsky et al.)</div><div class="rd">تحقیقات پایه درباره عادت به خوشبختی</div></div></li>
+</ul></div>
+</div>
+
+<!-- BEFORE YOU KNOW IT -->
+<div class="page" id="before-you-know-it">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Psychology · Unconscious Mind · Priming</div>
+  <h1 class="bp-title">Before You Know It</h1>
+  <div class="bp-auth">John Bargh · Simon & Schuster · 2017</div>
+  <div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Unconscious</span><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Priming</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Social Psych</span></div>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000688534635" target="_blank">▶ پادکست دکتر مکری</a>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">تا چه اندازه تصمیم‌هایی که فکر می‌کنیم آگاهانه می‌گیریم، قبل از اینکه بفهمیم گرفته شدن؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>بارگ از استادهای برجسته روانشناسی شناختی یِیل، دهه‌ها روی «پرایمینگ» کار کرده , اینکه چطور محرک‌های محیطی که اصلاً متوجه‌شون نمی‌شیم، رفتار و قضاوت ما رو شکل می‌دن.</p>
+<p>یکی از معروف‌ترین آزمایش‌هاش: اگه آدم‌ها قبل از مصاحبه شغلی یه نوشیدنی گرم بگیرن (نه سرد)، متقاضی رو «گرم‌تر» (صمیمی‌تر) ارزیابی می‌کنن. حرارت فیزیکی، ذهن رو پرایم می‌کنه که «گرمی اجتماعی» ببینه.</p>
+<p>آزمایش دیگه: اگه از آدم‌ها خواسته بشه جمله‌هایی با کلمات مرتبط با پیری (مثل «قدیمی»، «آهسته»، «خستگی») رو مرتب کنن، بعداً آهسته‌تر راه می‌رن , بدون اینکه بدونن چرا.</p>
+<p>بارگ این رو ربط می‌ده به ارتقاء تکاملی: سیستم ناخودآگاه ما خیلی سریع‌تر از آگاهی ما تصمیم می‌گیره و بدن رو آماده می‌کنه. این در محیط‌های خطرناک حیاتی بود , ولی در دنیای مدرن، همین سیستم رفتارهای نامناسب ایجاد می‌کنه.</p>
+<p>کتاب به چند حوزه می‌پردازه: ناخودآگاه در روابط اجتماعی (چطور بدون تفکر آگاهانه، آدم‌ها رو دوست می‌داریم یا نه)، ناخودآگاه در انگیزش (چطور محیط فیزیکی انگیزه‌هامون رو شکل می‌ده)، و ناخودآگاه در اخلاق (چطور احساسات فیزیکی مثل «تهوع» قضاوت اخلاقی ما رو تأثیر می‌زنن).</p>
+<p>بارگ تأکید می‌کنه که ناخودآگاه اون اتاق تاریک فرویدی نیست , یه سیستم پردازشی سریع و کارآمده که اجدادمون رو زنده نگه می‌داشت. مشکل وقتیه که این سیستم قدیمی رو در محیط‌های مدرن اجرا می‌کنیم.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Bargh's Yale Priming Experiments</div><div class="rd">آزمایش‌های کلاسیک پرایمینگ , از نوشیدنی گرم تا کلمات مرتبط با پیری</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Thinking, Fast and Slow , Daniel Kahneman</div><div class="rd">کتاب موازی , سیستم ۱ و ۲ تفکر</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Michael Gazzaniga , Split-brain research</div><div class="rd">نیمکره‌های مغز و توهم اراده آگاهانه</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Ap Dijksterhuis , Unconscious thought theory</div><div class="rd">نظریه تفکر ناخودآگاه , بعضی تصمیم‌ها بدون فکر کردن بهترن</div></div></li>
+</ul></div>
+</div>
+
+<!-- SUGGESTIBLE BRAIN -->
+<div class="page" id="suggestible-brain">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Neuroscience · Suggestion · Placebo · Hypnosis</div>
+  <h1 class="bp-title">The Suggestible Brain</h1>
+  <div class="bp-auth">Amir Raz · MIT Press · 2023</div>
+  <div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Neuroscience</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Placebo</span><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Hypnosis</span></div>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000697488030" target="_blank">▶ پادکست دکتر مکری</a>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">تا کجا باور و انتظار می‌تونن واقعیت فیزیولوژیک بدن ما رو تغییر بدن؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>امیر راز , عصب‌شناس کانادایی و شعبده‌بازِ سابق حرفه‌ای , این دو دنیا رو با هم آورده. اون معتقده که شعبده‌بازی بهش یاد داد انتظار و توجه انسان رو چطور هدایت کنه، و حالا به عنوان دانشمند داره اثبات می‌کنه این مکانیسم‌ها زیربنای علمی دارن.</p>
+<p>دارونما (placebo) ستون فقرات کتابه. راز نشون می‌ده که دارونما نه فریب، بلکه یه مکانیسم واقعی عصبی‌ه. مغز بر اساس انتظار، نوروترانسمیترهای واقعی ترشح می‌کنه. حتی وقتی آدم می‌دونه داره قرص شکر می‌خوره (open-label placebo)، هنوز اثر دارونما دیده می‌شه.</p>
+<p>هیپنوتیزم فصل مفصلیه. راز با fMRI نشون می‌ده که هیپنوتیزم واقعاً فعالیت مناطق خاصی از مغز رو تغییر می‌ده , این یه حالت روانی واقعیه، نه بازی. بعضی آدم‌ها «suggestible» هستن، بعضی کمتر.</p>
+<p>یه بخش مهم درباره «nocebo» هست , عکس دارونما. اگه انتظار داشته باشی یه چیزی بده، بدتر می‌شه. بیمارانی که از عارضه جانبی احتمالی دارو مطلع شدن، بعد از مصرف اون عوارض رو بیشتر تجربه می‌کنن. این چالش اخلاقی بزرگی برای پزشکیه.</p>
+<p>کتاب به دستکاری رسانه‌ای هم می‌پردازه , همون مکانیسم تلقین که در دارونما کار می‌کنه، در تبلیغات و اخبار هم استفاده می‌شه. شناخت این مکانیسم‌ها اولین قدم برای مقاومت در برابرشونه.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Irving Kirsch , The Emperor's New Drugs</div><div class="rd">قوی‌ترین نقد به داروهای ضدافسردگی از منظر اثر دارونما</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Hypnosis & fMRI studies (Raz lab)</div><div class="rd">تصویربرداری مغزی که تغییر واقعی فعالیت مغز در هیپنوتیزم رو نشون می‌ده</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">The Expectation Effect , David Robson (2022)</div><div class="rd">کتاب موازی درباره چطور انتظارات ما سلامتمون رو شکل می‌دن</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Open-label placebo research (Harvard)</div><div class="rd">دارونمایی که حتی وقتی می‌دونی چیه کار می‌کنه</div></div></li>
+</ul></div>
+</div>
+
+<!-- END OF TRAUMA -->
+<div class="page" id="end-of-trauma">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Clinical Psychology · Trauma · Resilience</div>
+  <h1 class="bp-title">The End of Trauma</h1>
+  <div class="bp-auth">George Bonanno · Basic Books · 2021</div>
+  <div class="badges"><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Trauma</span><span class="badge" style="color:var(--green);border-color:#8e9e7230;background:#8e9e7210">Resilience</span><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">PTSD critique</span></div>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000728504667" target="_blank">▶ پادکست (بخش ۱)</a>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000728664578" target="_blank">▶ پادکست (بخش ۲)</a>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">آیا ما درباره آسیب‌پذیری انسان در برابر تروما اشتباه می‌کنیم , و توانایی بازگشت رو دست کم می‌گیریم؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>بونانو استاد روانشناسی بالینی کلمبیاست و دهه‌ها روی سوگ، تروما و تاب‌آوری تحقیق کرده. نتیجه تحقیقاتش چیزی بود که خودش هم انتظار نداشت: اکثریت آدم‌ها بعد از رویدادهای ناگوار , حتی خیلی شدید , تاب‌آوری قوی نشون می‌دن.</p>
+<p>کتاب با یه نقد جدی شروع می‌کنه: PTSD به عنوان استاندارد پاسخ به تروما ترویج شده، ولی مطالعات بونانو نشون می‌ده این پاسخ در اقلیت آدم‌هاست. در مطالعات طولانی‌مدت روی بازماندگان ۱۱ سپتامبر، از دست دادن همسر، و سوانح جنگی، بخش بزرگی از افراد الگوی تاب‌آوری نشون دادن , یعنی کوتاه‌مدت ناراحتی، سریع بازگشت به عملکرد نرمال.</p>
+<p>یه ادعای جنجالی‌تر هم هست: بونانو معتقده که «تروما»بودن یه رویداد تا حدودی «ساخته‌شده» است. مفهوم‌سازی بیش از حد از رویدادها به عنوان تروماتیک، می‌تونه خودش آسیب‌زا باشه , چون انتظار بیمار شدن ایجاد می‌کنه.</p>
+<p>کتاب چهار مسیر مختلف رو توصیف می‌کنه که آدم‌ها بعد از رویدادهای ناگوار طی می‌کنن: تاب‌آوری (resilience)، بهبودی (recovery)، رشد پس از تروما (post-traumatic growth)، و اختلال مزمن. بیشترین آدم‌ها در دسته اول و دوم قرار می‌گیرن.</p>
+<p>بونانو چرخه‌های انعطاف‌پذیری (flexibility sequence) رو هم معرفی می‌کنه: توانایی سنجیدن موقعیت، انتخاب پاسخ مناسب، و تنظیم اون پاسخ. این مهارت‌ها قابل یادگیری و تقویت هستن.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">Bonanno's longitudinal resilience studies (Columbia)</div><div class="rd">مطالعات بلندمدت روی بازماندگان ۱۱ سپتامبر، سوگ، و جنگ</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">DSM-5 PTSD criteria , critical review</div><div class="rd">بونانو با معیارهای رایج PTSD بحث انتقادی دارد</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">Judith Herman , Trauma and Recovery</div><div class="rd">دیدگاه کلاسیک درباره تروما , بونانو باهاش تفاوت دیدگاه داره</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">Martin Seligman , Learned Helplessness</div><div class="rd">مفهوم پایه‌ای درباره از دست دادن کنترل و پیامدهاش</div></div></li>
+</ul></div>
+</div>
+
+<!-- MATTERING -->
+<div class="page" id="mattering">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Psychology · Wellbeing · Social Identity</div>
+  <h1 class="bp-title">Mattering</h1>
+  <div class="bp-auth">Isaac & Ora Prilleltensky · NYU Press · 2023</div>
+  <div class="badges"><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Wellbeing</span><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Identity</span><span class="badge" style="color:var(--green);border-color:#8e9e7230;background:#8e9e7210">Belonging</span></div>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000728976364" target="_blank">▶ پادکست دکتر مکری</a>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">«مهم بودن» برای دیگران چطور عمیق‌ترین نیاز روانی ما رو شکل می‌ده؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>پریللتنسکی‌ها استدلال می‌کنن که یه نیاز اساسی در مدل‌های روانشناسی مدرن نادیده گرفته شده: نیاز به «اهمیت داشتن» , یعنی احساس اینکه برای دیگران مهمیم، دیده می‌شیم، و ارزش داریم.</p>
+<p>این با عزت نفس (self-esteem) متفاوته. عزت نفس درباره ارزیابی خودته. «اهمیت داشتن» درباره رابطه با دیگرانه. می‌تونی عزت نفس بالا داشته باشی ولی احساس کنی برای کسی مهم نیستی.</p>
+<p>کتاب دو بُعد از «mattering» رو معرفی می‌کنه: اول، احساس کردن که دیگران به ما توجه می‌کنن و برامون اهمیت می‌دن. دوم، احساس کردن که ما هم برای دیگران اهمیت داریم و تفاوت ایجاد می‌کنیم. هر دو با هم نیاز دارن.</p>
+<p>عواقب «نامرئی بودن» , یعنی احساس کردن که دیده نمی‌شی , مفصل بررسی می‌شه: افسردگی، خشم، رفتارهای آسیب‌رسان به خود و دیگران، و حتی رادیکال‌شدن. خیلی از پدیده‌های اجتماعی مثل خشونت جوانان، اعتیاد، و سیاست‌زدگی از این زاویه قابل فهم‌ترن.</p>
+<p>کتاب به حوزه‌های مختلف می‌پردازه: محیط کار (کارمندی که احساس می‌کنه مدیرش اهمیتی نمی‌ده)، مدرسه (دانش‌آموزی که احساس می‌کنه معلم‌ها نمی‌بیننش)، و جامعه (گروه‌های حاشیه‌نشین که احساس می‌کنن سیستم نادیده‌شون گرفته).</p>
+<p>راه‌حل‌های کتاب هم شخصی‌ان هم ساختاری: از توجه فعال در روابط شخصی گرفته تا طراحی سازمان‌هایی که «mattering» رو ارزش‌گذاری می‌کنن.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">Morris Rosenberg & B. Claire McCullough , Mattering (1981)</div><div class="rd">اولین مفهوم‌سازی علمی از «mattering» در روانشناسی</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">Social exclusion & ostracism research (Kipling Williams)</div><div class="rd">درد طرد اجتماعی همون مناطق مغزی درد فیزیکی رو فعال می‌کنه</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">Abraham Maslow , Hierarchy of Needs</div><div class="rd">کتاب این مدل رو نقد می‌کنه و «mattering» رو به عنوان یه نیاز جداگانه معرفی می‌کنه</div></div></li>
+</ul></div>
+</div>
+
+<!-- HOUR BETWEEN DOG AND WOLF -->
+<div class="page" id="dog-wolf">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Neuroscience · Trading · Biology of Risk</div>
+  <h1 class="bp-title">The Hour Between Dog and Wolf</h1>
+  <div class="bp-auth">John Coates · Penguin · 2012</div>
+  <div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Neuroscience</span><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Trading</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Hormones</span><span class="badge" style="color:var(--blue);border-color:#7a9db530;background:#7a9db510">Risk</span></div>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">آیا حباب‌ها و سقوط بازارها محصول «بی‌منطقی» نیستن , بلکه محصول زیست‌شناسی طبیعی تریدرهان؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>جان کوتس قبلاً تریدر مشتقات در گلدمن ساکس و دویچه بانک بود. بعداً عصب‌شناسی خوند و به کمبریج رفت. کتابش نقطه تلاقی این دو دنیاست.</p>
+<p>«ساعت بین سگ و گرگ» , اصطلاح فرانسوی قرون وسطاییه , لحظه‌ایه که گرگ‌ها بیرون می‌آن و سگ به یه چیز خطرناک تبدیل می‌شه. کوتس این رو استعاره می‌گیره برای تحول روانی که در تریدرها اتفاق می‌افته وقتی زیر فشارن.</p>
+<p>پیدایش کلیدی: کوتس آزمایش‌هایی روی تریدرهای لندن انجام داد و نشون داد که موفقیت تستوسترون رو بالا می‌بره. تستوسترون بالا ترس از ریسک رو کاهش می‌ده و اعتماد به نفس رو بالا می‌بره. موفقیت بیشتر → تستوسترون بیشتر → ریسک بیشتر. این «اثر برنده» (winner effect) حلقه‌ای می‌سازه که نهایتاً به irrational exuberance منجر می‌شه.</p>
+<p>برعکسش هم درسته: شکست کورتیزول رو بالا می‌بره. کورتیزول به ترس، اضطراب و اجتناب از ریسک منجر می‌شه. شکست بیشتر → کورتیزول بیشتر → learned helplessness. این می‌شه توضیح زیستی برای panic و رکود بازارها.</p>
+<p>کوتس از این فراتر می‌ره و ادعا می‌کنه که حباب‌های مالی و رکودهای عمیق، جزئاً محصول این چرخه‌های هورمونی‌ان. یه گروه بزرگ از تریدرهای جوان مرد با تستوسترون بالا، در بازار صعودی حباب می‌سازن. وقتی بازار برمی‌گرده، همین گروه با کورتیزول بالا ریسک نمی‌کنن و رکود رو عمیق‌تر می‌کنن.</p>
+<p>راه‌حل کوتس جالبه: متنوع کردن جمعیت تریدرها , استخدام زنان بیشتر (که تستوسترون ۱۰-۲۰ برابر کمتر دارن) و مردهای مسن‌تر. این تنوع از نوسانات شدید جلوگیری می‌کنه. همچنین پیشنهاد می‌ده که تریدرهای «داغ» دوره اجباری استراحت داشته باشن.</p>
+<p>کتاب همچنین از «gut feelings» (احساس شهودی) صحبت می‌کنه , نشون می‌ده که این‌ها پردازش ناخودآگاه واقعی هستن که گاهی از تحلیل عقلانی بهترن. تریدرهای با تجربه یاد گرفتن به سیگنال‌های بدنشون گوش بدن.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Coates & Herbert (2008) , Nature paper on testosterone & trading</div><div class="rd">مقاله اصلی علمی که زیربنای کتابه</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Winner Effect , animal behavior research</div><div class="rd">در حیوانات هم برنده‌ها تستوسترون بیشتر دارن و ریسک بیشتر می‌کنن</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Robert Sapolsky , Why Zebras Don't Get Ulcers</div><div class="rd">بیولوژی استرس , پیش‌زمینه مهم برای درک کتاب</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Keynes , Animal Spirits</div><div class="rd">کینز این رو «روح‌های حیوانی» می‌نامید , کوتس توضیح زیستی‌اش رو داره</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Antonio Damasio , Somatic Marker Hypothesis</div><div class="rd">نظریه‌ای درباره چطور احساسات جسمانی در تصمیم‌گیری نقش دارن</div></div></li>
+</ul></div>
+</div>
+
+<!-- MARKET WIZARDS 1 -->
+<div class="page" id="market-wizards-1">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Trading · Interviews · Market Psychology</div>
+  <h1 class="bp-title">Market Wizards</h1>
+  <div class="bp-auth">Jack D. Schwager · New York Institute of Finance · 1989</div>
+  <div class="badges"><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Trading</span><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Interviews</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Psychology</span></div>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">آیا بزرگ‌ترین تریدرهای تاریخ یه فرمول مشترک دارن , یا هر کدوم راه خودشونو رفتن؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>شوآگر تحقیق و مصاحبه‌ای انجام داد که تبدیل به یکی از مهم‌ترین کتاب‌های تاریخ ترید شد. جواب سوال مرکزیش هم جالبه: مشترک‌ها وجود دارن، ولی نه در استراتژی , در «ذهنیت» و «رویکرد».</p>
+<p>مصاحبه‌شوندگان در این جلد شامل می‌شن: Michael Marcus (اولین تریدر بزرگ و استاد معنوی بقیه)، Bruce Kovner (موسس Caxton Associates)، Richard Dennis (پدر Turtle Trading)، Paul Tudor Jones (یکی از بزرگ‌ترین ماکرو تریدرها)، Ed Seykota (پیشگام ترید سیستماتیک با بازده خیره‌کننده ۲۵۰,۰۰۰٪ طی ۱۶ سال)، و چند نفر دیگه.</p>
+<p>بزرگ‌ترین درس مشترک: مدیریت ریسک از هر چیز دیگه‌ای مهم‌تره. همه این تریدرها درباره ضرر کمتر از برد زیاد صحبت می‌کنن. اول بقا، بعد سود.</p>
+<p>درس مهم دیگه: هیچ روش درست مطلقی وجود نداره. بعضی فاندامنتال کار می‌کنن، بعضی تکنیکال، بعضی مختلط. بعضی دیسکرشنری، بعضی سیستماتیک. موفقیت به انطباق استراتژی با شخصیت تریدره.</p>
+<p>Ed Seykota یکی از جالب‌ترین مصاحبه‌هاست: او معتقده که هر تریدر «آنچه را که ناخودآگاه می‌خواهد» به دست می‌آره. شکست‌خوردگان در عمق ناخودآگاه می‌خوان شکست بخورن. این روانکاوانه‌ترین رویکرد کتابه.</p>
+<p>Paul Tudor Jones مشهور به اینه که می‌گه: «بازنده‌های بزرگ توجه بیشتری به برنده شدن دارن تا به از دست ندادن.» محور فکریش defense-first و second-guess کردن همیشگی خودشه.</p>
+<p>شوآگر در انتهای کتاب جمع‌بندی می‌کنه: «روش‌شناسی محکم + نگرش ذهنی درست = موفقیت در ترید». این فرمول ساده پشتش ده‌ها ساعت مصاحبه عمیق قراره.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Reminiscences of a Stock Operator , Edwin Lefèvre</div><div class="rd">کتاب محبوب Jesse Livermore , خیلی از تریدرهای مصاحبه‌شده بهش اشاره می‌کنن</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Turtle Trading System (Dennis & Eckhardt)</div><div class="rd">آزمایش اثبات اینکه ترید قابل آموزشه , کوچ آدم‌های عادی به تریدرهای موفق</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Elliott Wave Theory (Prechter)</div><div class="rd">ابزار تکنیکالی که بعضی مصاحبه‌شوندگان استفاده می‌کنن</div></div></li>
+</ul></div>
+</div>
+
+<!-- MARKET WIZARDS 2 -->
+<div class="page" id="market-wizards-2">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Trading · Global Macro · Systems · Interviews</div>
+  <h1 class="bp-title">The New Market Wizards</h1>
+  <div class="bp-auth">Jack D. Schwager · HarperBusiness · 1992</div>
+  <div class="badges"><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Trading</span><span class="badge" style="color:var(--blue);border-color:#7a9db530;background:#7a9db510">Macro</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Psychology</span></div>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">نسل بعد از Market Wizards چه درس‌های تازه‌ای دارن که نسل اول نمی‌دونست؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>شوآگر در این جلد سراغ نسل جدیدتری از تریدرها رفته که بعضاً با روش‌های متفاوت‌تری موفق شدن. سه نمونه برجسته:</p>
+<p>Stanley Druckenmiller یکی از مهم‌ترین ماکرو تریدرهای تاریخه که برای جورج سوروس کار کرد. مشهوره به شکستن بانک مرکزی انگلیس در ۱۹۹۲. درس مهمش: «right or wrong doesn't matter , size matters». وقتی یه تریدِ درست پیدا می‌کنی، باید بزرگ ریسک کنی.</p>
+<p>Bill Lipschutz بزرگ‌ترین تریدر فارکس سالومون برادرز بود. نکته جالب: اون معتقده که ترید فارکس کاملاً متفاوت از بقیه بازارهاست , بیشتر از هر چیز، بازار اطلاعات و جریان خبره. روانشناسی بازار برای FX حیاتی‌تره.</p>
+<p>William Eckhardt شریک ریچارد دنیس در آزمایش Turtle بود. اون از یه زاویه ریاضی‌تر به ترید نگاه می‌کنه. یکی از مهم‌ترین نکاتش: «اگه یه استراتژی طولانی‌مدت داری، باید در لحظات دردناک به آن پایبند باشی , دقیقاً همون موقع که ذهنت می‌گه ول کن».</p>
+<p>یه درس مشترک این جلد که جلد اول کمتر بهش اشاره کرده: تفاوت بین دیسکرشنری و سیستماتیک. تریدرهای سیستماتیک استدلال می‌کنن که قوانین ثابت از سوگیری‌های شناختی محافظت می‌کنن. دیسکرشنری‌ها می‌گن انعطاف‌پذیری لازمه.</p>
+<p>Linda Bradford Raschke , یکی از معدود زنان کتاب , نشون می‌ده که ترید کوتاه‌مدت و تکنیکال می‌تونه به اندازه ماکرو یا سیستماتیک کار کنه. مهم اینه که روش با شخصیت تریدر تطابق داشته باشه.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Black Wednesday (1992) , Breaking the Bank of England</div><div class="rd">سوروس و دراکنمیلر ۱ میلیارد دلار از بحران پوند کردن , یه case study واقعی</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Turtle Trading Experiment</div><div class="rd">اکهارت و دنیس در مورد اینکه ترید آموختنیه یا ذاتیه، شرط بستن</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Market Wizards Vol. 1 , Schwager</div><div class="rd">جلد اول , پیش‌نیاز مطالعاتیه</div></div></li>
+</ul></div>
+</div>
+
+<!-- TRADING IN THE ZONE -->
+<div class="page" id="trading-zone">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Trading Psychology · Discipline · Mindset</div>
+  <h1 class="bp-title">Trading in the Zone</h1>
+  <div class="bp-auth">Mark Douglas · Prentice Hall · 2000</div>
+  <div class="badges"><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Psychology</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Mindset</span><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Discipline</span></div>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">چرا تریدری با استراتژی خوب همچنان ضرر می‌کنه , و راه‌حل روانشناختی‌اش چیه؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>مارک داگلاس شاید مهم‌ترین روانشناس ترید تاریخه. کتاب قبلیش «The Disciplined Trader» پایه‌گذار این حوزه بود؛ «Trading in the Zone» کاملش کرد.</p>
+<p>ادعای اصلی: بیشتر تریدرها نه به خاطر استراتژی ضعیف، بلکه به خاطر «رابطه‌شان با بازار» شکست می‌خورن. این رابطه پُر از ترس، طمع، باور اشتباه و انتظارات غلطه.</p>
+<p>یه مفهوم محوری: «احتمال‌اندیشی» (probabilistic thinking). بازار اطلاعات کامل نداره. هیچ تریدی صد درصد درست نیست. تریدر موفق نه می‌خواد «درست باشه»، بلکه می‌خواد «ادج» (edge) داشته باشه و اون ادج رو طی تعداد زیادی ترید عمل کنه.</p>
+<p>داگلاس توضیح می‌ده که چرا آدم‌ها در ترید «بازار رو شخصی می‌کنن». وقتی بازار برخلاف پوزیشنت حرکت می‌کنه، مغز این رو به عنوان تهدید شخصی تفسیر می‌کنه. این باعث می‌شه stop loss رو جابجا کنی، از ترید بزرگ‌تر ریسک کنی تا جبران کنی، یا از trade خوب زود خارج بشی.</p>
+<p>مفهوم «The Zone» , حالتی از ذهنه که در اون تریدر کاملاً در لحظه حاضره، ترسی از ضرر نداره چون ضرر رو بخشی از بازی می‌بینه، و مکانیکی ترید می‌کنه بدون اینکه ذهن احساسی دخالت کنه.</p>
+<p>داگلاس پنج «حقیقت بنیادی» معرفی می‌کنه: هر لحظه در بازار منحصربه‌فرده؛ هر نتیجه‌ای ممکنه؛ هیچ تریدی اثبات‌شده نیست؛ نتایج تصادفی از ادج قابل پیش‌بینی می‌شن؛ ادج فقط احتمال بالاتره، نه قطعیت.</p>
+<p>یه بخش مهم درباره چطور باورهای گذشته (از کودکی و تجربیات قبلی) در ترید نمود پیدا می‌کنن , و چطور باید این باورها رو شناخت و عوض کرد.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">The Disciplined Trader , Mark Douglas (1990)</div><div class="rd">کتاب قبلی داگلاس , پیش‌نیاز این کتابه</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Market Wizards series , Schwager</div><div class="rd">نمونه‌های واقعی از تریدرهایی که «Zone» رو تجربه کردن</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Flow , Mihaly Csikszentmihalyi</div><div class="rd">حالت flow در روانشناسی , معادل «Zone» در حوزه‌های دیگه</div></div></li>
+</ul></div>
+</div>
+
+<!-- GLOBAL MACRO TRADING -->
+<div class="page" id="global-macro">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Macro Trading · FX · Currencies · Strategy</div>
+  <h1 class="bp-title">Global Macro Trading</h1>
+  <div class="bp-auth">Greg Gliner · Bloomberg Press · 2014</div>
+  <div class="badges"><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Macro</span><span class="badge" style="color:var(--blue);border-color:#7a9db530;background:#7a9db510">FX</span><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Strategy</span></div>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">چطور می‌شه از تغییرات اقتصاد کلان جهانی پوزیشن گرفت , با discipline و process؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>گلینر این کتاب رو از منظر یه پرکتیشنر نوشته , نه آکادمیک. هدفش اینه که نشون بده چطور ماکرو تریدرهای حرفه‌ای به اطلاعات اقتصادی نگاه می‌کنن و اونا رو به trade تبدیل می‌کنن.</p>
+<p>ستون فقرات کتاب اینه که ماکرو ترید از چهار عنصر تشکیل می‌شه: درک چرخه‌های اقتصادی کلان (business cycle)، تحلیل سیاست‌های پولی بانک‌های مرکزی، درک جریان‌های سرمایه و ترازهای پرداخت، و تحلیل احساسات بازار (sentiment).</p>
+<p>بخش ارز (FX) مفصل‌تره. گلینر توضیح می‌ده که چطور نرخ‌های بهره، نرخ تورم، رشد اقتصادی، و ریسک سیاسی با هم ترکیب می‌شن تا قیمت ارزها رو شکل بدن. این فرآیند خیلی پیچیده‌تر از «اگه فدرال رزرو نرخ بالا ببره، دلار قوی می‌شه» هست.</p>
+<p>یه بخش درباره ساختار بازار FX است , اینکه بازار فارکس یه شبکه بین‌بانکی غیرمتمرکزه با players مختلف (بانک‌های مرکزی، هج‌فاندها، بانک‌های تجاری، خرده‌فروش‌ها) که هر کدوم انگیزه‌های متفاوتی دارن.</p>
+<p>گلینر از «ماکرو تم‌ها» صحبت می‌کنه , نه تریدهای روزانه، بلکه داستان‌های بزرگ‌تری که ماه‌ها یا سال‌ها طول می‌کشن. مثلاً «دیورژانس سیاست پولی بین فدرال رزرو و ECB» یه تم بود که سال‌ها در FX قابل استفاده بود.</p>
+<p>فصل مهمی هم درباره «position sizing» و مدیریت ریسک در ماکرو ترید داره , که متفاوت از ترید کوتاه‌مدته. در ماکرو ممکنه ماه‌ها ضرر بدی قبل از اینکه تم اثبات بشه.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">George Soros , The Alchemy of Finance</div><div class="rd">نظریه «reflexivity» سوروس , یکی از اساسی‌ترین چارچوب‌های ماکرو ترید</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Ray Dalio , Principles for Navigating Big Debt Crises</div><div class="rd">مدل چرخه بدهی بریجواتر , ابزار تحلیل ماکرو</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Market Wizards 2 (Druckenmiller interview)</div><div class="rd">بهترین مثال عملی از ماکرو تریدینگ</div></div></li>
+</ul></div>
+</div>
+
+<!-- ADVANCED ALGO TRADING -->
+<div class="page" id="algo-trading">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Quantitative Trading · Python · Backtesting · Systems</div>
+  <h1 class="bp-title">Advanced Algorithmic Trading</h1>
+  <div class="bp-auth">Michael Halls-Moore · QuantStart · 2017</div>
+  <div class="badges"><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Quant</span><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Python</span><span class="badge" style="color:var(--blue);border-color:#7a9db530;background:#7a9db510">Backtesting</span></div>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">چطور می‌شه یه سیستم ترید الگوریتمی از صفر ساخت که در دنیای واقعی کار کنه , نه فقط روی داده‌های تاریخی؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>هالز-مور این کتاب رو برای تریدرهایی نوشته که برنامه‌نویسی بلدن و می‌خوان وارد کوانت ترید بشن. کتاب دوره QuantStart.com رو کامل می‌کنه.</p>
+<p>بخش اول، «Bayesian Statistics» و احتمالاتِ پیشین رو معرفی می‌کنه. این فرق بزرگیه با رویکرد فرکانسیستی رایج. کتاب توضیح می‌ده چرا برای ترید، تفکر بیزین بهتره , چون می‌تونی باور قبلیت رو با داده‌های جدید به‌روز کنی.</p>
+<p>Backtesting مفصل بررسی می‌شه , و مهم‌تر از اون، «overfitting» که بزرگ‌ترین دشمن سیستم‌های الگوریتمیه. کتاب نشون می‌ده که چطور سیستمی که روی داده‌های گذشته عالی کار می‌کنه، ممکنه روی داده‌های جدید کاملاً شکست بخوره.</p>
+<p>یه فصل کامل درباره «Time Series Analysis» و مدل‌های ARIMA، GARCH و ... داره. این برای پیش‌بینی نوسانات و قیمت حیاتیه.</p>
+<p>بخش‌هایی درباره ساخت پورتفولیو بهینه (portfolio optimization) با استفاده از Modern Portfolio Theory و بیاندش هست , از محدودیت‌های Markowitz تا روش‌های جدیدتر.</p>
+<p>یه فصل خیلی مفید درباره «execution» داره , که اکثر کتاب‌های مشابه نادیده می‌گیرن. market impact، slippage و latency در عمل چقدر اهمیت دارن؟</p>
+<p>کتاب با Python پیاده‌سازی می‌شه و کدهای واقعی داره , این یکی از مزایاشه. از pandas و numpy گرفته تا sklearn برای مدل‌های ML.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Advances in Financial Machine Learning , Lopez de Prado</div><div class="rd">کتاب مکمل پیشرفته‌تر , همین مجموعه</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Algorithmic Trading , Ernie Chan</div><div class="rd">کتاب ارنی چان , رویکرد عملی‌تر برای تریدرهای خرده</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Bayesian Methods for Hackers , Cameron Davidson-Pilon</div><div class="rd">معرفی عملی آمار بیزین با Python</div></div></li>
+</ul></div>
+</div>
+
+<!-- ADVANCES IN FINANCIAL ML -->
+<div class="page" id="ml-finance">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Machine Learning · Quantitative Finance · Research</div>
+  <h1 class="bp-title">Advances in Financial Machine Learning</h1>
+  <div class="bp-auth">Marcos Lopez de Prado · Wiley · 2018</div>
+  <div class="badges"><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">ML</span><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Quant</span><span class="badge" style="color:var(--blue);border-color:#7a9db530;background:#7a9db510">Research</span></div>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">چرا اکثر مقالات ML در فاینانس شکست می‌خورن , و چطور باید درست کار کرد؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>لوپز دو پرادو یکی از مهم‌ترین کوانت‌های جهانه , قبلاً در AQR و Guggenheim کار کرده. این کتاب نه مقدمه ML، بلکه یه نقد جدی به نحوه اشتباه استفاده از ML در فاینانسه.</p>
+<p>مهم‌ترین مشکلی که کتاب بهش می‌پردازه «multiple testing» یا آزمایش مکرر روی داده‌هاست. وقتی هزاران استراتژی رو روی داده‌های تاریخی تست می‌کنی، برخی اتفاقاً کار می‌کنن , نه به خاطر ادج واقعی. این «HARKing» (Hypothesizing After Results are Known) رو به فاینانس آکادمیک می‌آره.</p>
+<p>کتاب «feature engineering» برای داده‌های مالی رو عمیقاً پوشش می‌ده. مثلاً چطور از bar data معمولی به «information-driven bars» برگردیم , که به جای زمان، بر اساس حجم یا تعداد معاملات ساخته می‌شن. این داده‌های بهتری برای ML فراهم می‌کنه.</p>
+<p>«Purged Cross-Validation» یه ابداع مهم لوپز دو پرادوست. در داده‌های مالی time series، نشت اطلاعات از training به test set مشکل جدیه. روش پیشنهادیش این نشت رو حل می‌کنه.</p>
+<p>بخش labeling داده‌های مالی خیلی جالبه: «Triple Barrier Method» رو معرفی می‌کنه , که به جای ساده‌ترین «بالا رفت / پایین رفت»، سه شرط برای خروج از موقعیت تعریف می‌کنه (سود کافی، ضرر کافی، یا گذشت زمان کافی).</p>
+<p>فصل مهمی درباره «Feature Importance» هست , که چطور بفهمیم کدوم feature‌ها واقعاً کار می‌کنن و کدوم‌ها overfitting ایجاد می‌کنن. او MDI و MDA و ShapValues رو به عنوان روش‌های مختلف بررسی می‌کنه.</p>
+<p>در پایان، کتاب استدلال می‌کنه که ML در فاینانس نیاز به تیم تخصصی داره , نه یه نفر که هم استراتژیست باشه هم برنامه‌نویس. این دیدگاه سازمانیه.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">The False Strategy Problem (Lopez de Prado, 2019)</div><div class="rd">مقاله مکمل درباره چرا اکثر بک‌تست‌ها اشتباهن</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">Elements of Statistical Learning , Hastie et al.</div><div class="rd">پایه ریاضی برای درک ML که کتاب پیش‌فرض می‌گیره</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--gold)"></span><div><div class="rn">AQR , Factor Investing Research</div><div class="rd">بسیاری از مفاهیم از تجربه AQR میان</div></div></li>
+</ul></div>
+</div>
+
+<!-- WHEN MONEY DIES -->
+<div class="page" id="when-money-dies">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">History · Economics · Weimar Germany · Hyperinflation</div>
+  <h1 class="bp-title">When Money Dies</h1>
+  <div class="bp-auth">Adam Fergusson · William Kimber · 1975 (reprinted 2010)</div>
+  <div class="badges"><span class="badge" style="color:var(--red);border-color:#a87c6e30;background:#a87c6e10">History</span><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Economics</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Hyperinflation</span><span class="badge" style="color:var(--red);border-color:#a87c6e30;background:#a87c6e10">Weimar</span></div>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">وقتی ارز یه کشور بی‌ارزش می‌شه , چه اتفاقی برای جامعه، اخلاق و دموکراسی می‌افته؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>این کتاب در ۱۹۷۵ نوشته شد ولی بعد از بحران مالی ۲۰۰۸ دوباره معروف شد , وارن بافت پیشنهادش کرد. نسخه‌هایش روی eBay تا ۱۰۰۰ دلار می‌رفت قبل از چاپ مجدد.</p>
+<p>فرگوسن داستان آلمان ۱۹۲۱-۱۹۲۳ رو ماه به ماه روایت می‌کنه. جمهوری وایمار بعد از شکست در جنگ اول جهانی با غرامت‌های عظیم ورسای مواجه بود. به جای قبول درد کوتاه‌مدت، شروع کرد به چاپ پول. اول کمی تورم ایجاد شد، بعد سریع‌تر شد، بعد کنترل از دست رفت.</p>
+<p>در اوج بحران، نرخ تبادل یه دلار در برابر ۴,۲۰۰,۰۰۰,۰۰۰,۰۰۰ مارک رسید. یه کارمند باید روزانه حقوقش رو می‌گرفت و فوری خرج می‌کرد چون تا ظهر نصفش ارزشش رو از دست می‌داد. مردم با فرغون پول می‌رفتن نان بخرن.</p>
+<p>فرگوسن از طریق خاطرات نویسندگان و دیپلمات‌ها و روزنامه‌نگارانی که آن زمان حضور داشتن، تصویر انسانی رو می‌کشه. طبقه متوسط بیشترین آسیب رو دید , پس‌انداز عمرشون یه شبه محو شد. صنعتگران بزرگ و کسانی که دارایی واقعی داشتن، ثروتمندتر شدن. این شکاف طبقاتی شدید، زمینه‌ساز نفرت و رادیکالیسم شد.</p>
+<p>یه اثر جالب: اخلاق جامعه دگرگون شد. «داشتن و از دست ندادن» مهم‌تر از «درست بودن» شد. فساد گسترش یافت. اعتماد به نهادها از بین رفت. این فضا مستقیماً به کودتای بیرهال هیتلر در ۱۹۲۳ و در نهایت به نازیسم کمک کرد.</p>
+<p>فرگوسن در انتها تأکید می‌کنه که آلمان از این تجربه بیرون آمد , با معرفی Rentenmark که ارز جدید بود و اعتماد رو برگرداند. ولی آسیب روانی و اجتماعی ماند. این کتاب هشداری‌ه درباره اینکه سیاست‌های پولی فقط عددی نیستن , آدم‌ها پشتشون هستن.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--red)"></span><div><div class="rn">Treaty of Versailles (1919)</div><div class="rd">ریشه بحران , غرامت‌های طاقت‌فرسایی که آلمان مجبور به پرداختش بود</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--red)"></span><div><div class="rn">Hugo Stinnes , German industrialist</div><div class="rd">یکی از معدود کسانی که از تورم ثروتمند شد , فراموش‌شده‌ترین قهرمان/شیطان این داستانه</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--red)"></span><div><div class="rn">Beer Hall Putsch (November 1923)</div><div class="rd">تلاش کودتای هیتلر , دقیقاً در اوج بحران تورمی</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--red)"></span><div><div class="rn">End Times , Peter Turchin</div><div class="rd">کتاب مکمل , ارتباط بین بحران اقتصادی و فروپاشی سیاسی</div></div></li>
+</ul></div>
+</div>
+
+<!-- END TIMES -->
+<div class="page" id="end-times">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Political Science · Cliodynamics · History · Elites</div>
+  <h1 class="bp-title">End Times</h1>
+  <div class="bp-auth">Peter Turchin · Penguin Press · 2023</div>
+  <div class="badges"><span class="badge" style="color:var(--red);border-color:#a87c6e30;background:#a87c6e10">Politics</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Cliodynamics</span><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Elites</span><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Complexity Science</span></div>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">آیا تاریخ قابل پیش‌بینیه , و اگه آره، الان کجای چرخه فروپاشی هستیم؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>ترچین زیست‌شناس نظری بود که به تاریخ روی آورد و یه علم جدید خلق کرد: «کلیودینامیک» , مطالعه ریاضی تاریخ. اون در ۲۰۱۰ در مجله Nature پیش‌بینی کرد که آمریکا حدوداً ۲۰۲۰ وارد بحران سیاسی شدیدی می‌شه. چی شد؟ ۶ ژانویه ۲۰۲۱.</p>
+<p>دو نیروی محرک اصلی فروپاشی جوامع رو ترچین معرفی می‌کنه: اول «فلاکت عمومی» (popular immiseration) , وقتی دستمزد واقعی اکثر مردم رشد نمی‌کنه ولی هزینه‌های زندگی بالا می‌ره. دوم «تولید بیش از حد الیت» (elite overproduction) , وقتی تعداد آدم‌هایی که می‌خوان جایگاه‌های قدرت رو بگیرن از جایگاه‌های موجود بیشتر می‌شه.</p>
+<p>مکانیسم جالب: وقتی elite overproduction اتفاق می‌افته، کسایی که «باید» الیت می‌شدن ولی نشدن، تبدیل می‌شن به «counter-elite» , یعنی رهبران اپوزیسیون که از خشم مردم سوء استفاده می‌کنن. روبسپیر، مارا در انقلاب فرانسه، ترامپ و ماسک در آمریکا , همه الگوی مشابه دارن: نه واقعاً «مردم»، بلکه الیت‌های ناکام.</p>
+<p>ترچین مفهوم «wealth pump» رو معرفی می‌کنه: مکانیزم‌هایی که ثروت رو از اکثریت به اقلیت منتقل می‌کنن. وقتی این pump برای مدت طولانی کار کنه، جامعه به حالت ناپایداری می‌رسه.</p>
+<p>یه بخش مهم درباره تاریخ آمریکاست. ترچین دو «Age of Discord» قبلی رو شناسایی می‌کنه: ۱۸۵۰-۱۸۶۵ (منجر به جنگ داخلی) و ۱۹۱۰-۱۹۳۰ (منجر به Depression و WWII). الان در سومیم.</p>
+<p>کتاب از بدبینی خالص اجتناب می‌کنه. ترچین نشون می‌ده که بعضی جوامع از چرخه خارج شدن , مثل انگلیس ۱۸۳۰ با اصلاحات تدریجی. اگه الیت‌ها بپذیرن که قدرت و ثروت رو با دیگران شریک بشن، می‌شه از فروپاشی جلوگیری کرد.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--red)"></span><div><div class="rn">Ages of Discord , Peter Turchin (2016)</div><div class="rd">کتاب قبلی ترچین درباره تاریخ آمریکا با همین مدل</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--red)"></span><div><div class="rn">War and Peace and War , Turchin (2006)</div><div class="rd">کتاب دیگه‌ای از ترچین در همین مجموعه , همین لیست</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--red)"></span><div><div class="rn">Ibn Khaldun , Muqaddimah (14th century)</div><div class="rd">اولین نظریه‌پرداز چرخه‌های تاریخی , ترچین بهش ادای احترام می‌کنه</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--red)"></span><div><div class="rn">CrisisDB , Turchin's historical database</div><div class="rd">دیتابیس ۳۰۰ مورد بحران تاریخی که پایه تحقیقاتشه</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--red)"></span><div><div class="rn">Capital in the 21st Century , Thomas Piketty</div><div class="rd">داده‌های نابرابری اقتصادی که ترچین استفاده می‌کنه</div></div></li>
+</ul></div>
+</div>
+
+<!-- WAR AND PEACE AND WAR -->
+<div class="page" id="war-peace-war">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Empires · Cliodynamics · Historical Sociology</div>
+  <h1 class="bp-title">War and Peace and War</h1>
+  <div class="bp-auth">Peter Turchin · Pi Press · 2006</div>
+  <div class="badges"><span class="badge" style="color:var(--red);border-color:#a87c6e30;background:#a87c6e10">Empires</span><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Cliodynamics</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">History</span><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Complexity</span></div>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">چرا بعضی جوامع در مرزهای ناپایدار قوی می‌شن و به امپراتوری تبدیل می‌شن , و چرا بعداً سقوط می‌کنن؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>این کتاب قبل از «End Times» نوشته شده و اساس نظری رو می‌ریزه. ترچین در اینجا بیشتر روی ظهور و سقوط امپراتوری‌ها در تاریخ تمرکز می‌کنه , از روم تا اسلام تا مغول تا آمریکا.</p>
+<p>مفهوم محوری «Asabiyya» رو از ابن خلدون (جامعه‌شناس قرن ۱۴) می‌گیره: یعنی همبستگی اجتماعی یا «روح قبیله‌ای». جوامعی که Asabiyya بالایی دارن، می‌تونن کار بزرگ انجام بدن , امپراتوری بسازن، جنگ‌ها ببرن، سختی‌ها رو تحمل کنن. وقتی Asabiyya تحلیل می‌ره، جامعه فرو می‌پاشه.</p>
+<p>ترچین نشون می‌ده که Asabiyya در «مرزها» (frontiers) ساخته می‌شه , جاهایی که جوامع مختلف با هم روبرو می‌شن و برای بقا باید با هم همکاری کنن. روم در مرزهای ایتالیا شکل گرفت. اسلام در صحرای عربستان. مغول‌ها در استپ‌های آسیای مرکزی. آمریکا در مرزهای در حال گسترش.</p>
+<p>یه چرخه تاریخی رو معرفی می‌کنه: جامعه مرزی با Asabiyya بالا → فتح و توسعه → ثروت و آسایش → تضعیف Asabiyya → elite overproduction → فروپاشی → جامعه مرزی جدیدی از بیرون می‌آد و چرخه تکرار می‌شه.</p>
+<p>مثال‌های تاریخی جذابن: چرا مسلمانان اولیه توانستن ایران و روم شرقی رو شکست بدن در حالی که هر دو قدرتمندتر بودن؟ چون Asabiyya داشتن. چرا نسل سوم یا چهارم خلفا ضعیف شدن؟ چون ثروت و قدرت Asabiyya رو از بین برد.</p>
+<p>در نیمه دوم کتاب، ترچین این مدل رو روی تاریخ آمریکا اعمال می‌کنه. آمریکای قرن ۱۹ با Asabiyya بالا , روح جمهوری‌خواهی، همکاری اجتماعی، فداکاری مشترک. آمریکای قرن ۲۱ که Asabiyya‌اش در حال تحلیل رفتنه.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--red)"></span><div><div class="rn">Ibn Khaldun , Muqaddimah (1377)</div><div class="rd">منبع اصلی مفهوم Asabiyya , پایه‌گذار جامعه‌شناسی تاریخی</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--red)"></span><div><div class="rn">Arnold Toynbee , A Study of History</div><div class="rd">مطالعه ۲۶ تمدن , «عظمت‌ها از درون می‌میرن، نه از بیرون»</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--red)"></span><div><div class="rn">End Times , Peter Turchin (2023)</div><div class="rd">پیشرفت‌های بعدی همین مدل با داده‌های بیشتر</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--red)"></span><div><div class="rn">Robert Putnam , Bowling Alone</div><div class="rd">کاهش سرمایه اجتماعی در آمریکا , شواهد تجربی برای تحلیل Asabiyya</div></div></li>
+</ul></div>
+</div>
+
+
+<!-- VERONIKA -->
+<div class="page" id="veronika">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Novel · Existentialism · Psychiatry · Philosophy of Life</div>
+  <h1 class="bp-title">Veronika beschließt zu sterben</h1>
+  <div class="bp-auth">Paulo Coelho · Diogenes Verlag · 1998</div>
+  <div class="badges"><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Novel</span><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Existentialism</span><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Philosophy of Life</span><span class="badge" style="color:var(--blue);border-color:#7a9db530;background:#7a9db510">Psychiatry critique</span></div>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی کتاب</div><div class="bq">اگه همه چیز داری و زندگی‌ات «نرمال» پیش می‌ره , چرا ممکنه دیگه دلیلی برای ادامه دادنش نبینی؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>ورونیکا دختر جوانیه که در لجوبلیانا (پایتخت اسلوونی) زندگی می‌کنه. کار داره، ظاهر خوبی داره، خانواده‌اش ازش حمایت می‌کنن , و تصمیم می‌گیره خودکشی کنه. نه به خاطر یه اتفاق خاص، بلکه به این خاطر که آینده‌اش رو می‌بینه: همین روند تکراری تا آخر عمر.</p>
+<p>اقدام می‌کنه ولی زنده می‌مونه. در بیمارستان روانپزشکی «ویلته» به هوش میاد. دکتر ایگور بهش می‌گه که قلبش آسیب دیده و چند روز بیشتر زندگی نمی‌کنه. این «مرگ حتمی» چیزی رو در ورونیکا عوض می‌کنه.</p>
+<p>رمان از اینجا جذاب می‌شه: ورونیکا که همه عمر از قضاوت دیگران ترسیده، حالا که مرگ حتمیه دیگه چیزی برای از دست دادن نداره. شروع می‌کنه به پیانو زدن که سال‌ها رهاش کرده بود. عاشق می‌شه. عصیان می‌کنه. حس می‌کنه.</p>
+<p>کوئلیو از طریق بیمارستان و شخصیت‌هاش یه استدلال فلسفی می‌کنه: «دیوانگی» اغلب فقط خودداری از پوشیدن ماسک اجتماعیه. آدم‌هایی که «دیوانه» خوانده می‌شن اغلب کسایی‌ان که نتونستن یا نخواستن خودشون رو با انتظارات جامعه تطبیق بدن. بیمارستان روانپزشکی استعاره‌ای می‌شه از خود جامعه.</p>
+<p>یه کاراکتر مهم «ماری» است , زنی که یه بار حمله پانیک داشت و از ترس تکرار، خودش رو داوطلبانه در بیمارستان نگه می‌داره. کوئلیو از طریق او نشون می‌ده که خیلی از آدم‌ها در «زندان‌های» که خودشون ساختن زندگی می‌کنن , نه از اجبار، بلکه از ترس.</p>
+<p>دکتر ایگور یه آزمایش اخلاقی انجام می‌ده: عمداً به ورونیکا می‌گه که داره می‌میره (که راست نیست) تا ببینه آیا مواجهه با مرگ می‌تونه آدم رو به زندگی برگردونه. این دستکاری پزشکی سوال مهمی درباره اخلاق درمانه.</p>
+<p>انتها: ورونیکا کشف می‌کنه که مشکلش مرگ نبود , مشکلش زندگی بود. زندگی‌ای که هیچ وقت واقعاً انتخابش نکرده بود. آخر رمان امید داره ولی نه به شکل ساده‌ای , کوئلیو می‌گه بازگشت به زندگی یعنی پذیرفتن ابهام، نه یافتن اطمینان.</p>
+<p>کتاب بر اساس تجربه واقعی کوئلیوست , خودش سه بار توسط والدینش در آسایشگاه روانی بستری شد. این پس‌زمینه به کتاب وزن متفاوتی می‌ده.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">Michel Foucault , Madness and Civilization (1961)</div><div class="rd">روانپزشکی به عنوان ابزار کنترل اجتماعی , زیربنای فلسفی نقد کوئلیو به «ویلته»</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">One Flew Over the Cuckoo's Nest , Ken Kesey (1962)</div><div class="rd">همان ساختار داستانی: بیمارستان روانی به عنوان جامعه سرکوبگر، بیماران به عنوان «سالم‌ترها»</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">The Alchemist , Paulo Coelho (1988)</div><div class="rd">کتاب قبلی کوئلیو , همان سوال محوری: آیا داری «افسانه شخصی» خودت رو زندگی می‌کنی؟</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">Man's Search for Meaning , Viktor Frankl (1946)</div><div class="rd">لوگوتراپی , معنا به عنوان ضروری‌ترین نیاز انسانی. ورونیکا همین بحران رو داره</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">Nietzsche , Also sprach Zarathustra</div><div class="rd">«باید آنچه هستی بشوی» , تأثیر آشکار روی فلسفه پشت این رمان</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">Coelho's autobiography , autobiographical elements</div><div class="rd">کوئلیو سه بار توسط والدینش در آسایشگاه روانی بستری شد , «ویلته» از تجربه واقعیشه</div></div></li>
+</ul></div>
+</div>
+
+<!-- LECTURE 1 -->
+<div class="page" id="lec-time">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Lecture · Time Management · Cognitive Bias · Dr. Azarakhsh Mokri</div>
+  <h1 class="bp-title">چرا آخرش وقت کم می‌آوریم؟</h1>
+  <div class="bp-auth">دکتر آذرخش مکری · March 2025 · 1h 30min</div>
+  <div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Time Psychology</span><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">Cognitive Bias</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Planning</span></div>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000699411030" target="_blank">▶ پادکست</a>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی</div><div class="bq">چرا همه ما از اول می‌دونیم وقت کم میاریم، ولی دوباره همین اشتباه رو می‌کنیم؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>دکتر مکری در این جلسه به یکی از شایع‌ترین سوگیری‌های شناختی می‌پردازه که تقریباً همه انسان‌ها بهش مبتلان: «خطای برنامه‌ریزی» یا Planning Fallacy. این مفهوم رو اولین بار دانیل کانمن و آموس تورسکی در ۱۹۷۹ معرفی کردن.</p>
+<p>خطای برنامه‌ریزی اینه که ما به طور سیستماتیک زمان لازم برای انجام کارها رو دست کم می‌گیریم، حتی وقتی تجربه قبلی داریم که نشون می‌ده اشتباه می‌کنیم. جالبه که این سوگیری فقط درباره کارهای خودمونه، نه کارهای دیگران — وقتی به دیگران نگاه می‌کنیم، معمولاً زمان رو بیشتر تخمین می‌زنیم.</p>
+<p>دکتر مکری توضیح می‌ده که چند مکانیسم روان‌شناختی پشت این پدیده‌ان. اول «توجه انتخابی» به بهترین سناریو — وقتی یه کار رو برنامه‌ریزی می‌کنیم، ذهنمون به اون حالتی متمرکز می‌شه که همه چیز درست پیش میره. موانع احتمالی رو به خاطر نمیاریم یا دست کم می‌گیریم.</p>
+<p>دوم «فراموش کردن تجربه‌های قبلی» (inside view vs outside view). ما از دیدگاه درونی به کار نگاه می‌کنیم، نه از دیدگاه آماری بیرونی. مثلاً می‌دونیم که پروژه‌های مشابه معمولاً دو برابر زمان پیش‌بینی شده طول می‌کشن، ولی «این بار فرق داره».</p>
+<p>سوم «خوش‌بینی ذاتی» که خودش یه سوگیری جداگانه‌ست، ولی با خطای برنامه‌ریزی تقویت می‌شه. دکتر مکری نشون می‌ده که این خوش‌بینی در حد معقول مفیده، ولی وقتی به خطای برنامه‌ریزی تبدیل می‌شه می‌تونه آسیب‌زا باشه — از استرس مزمن گرفته تا خراب شدن رابطه‌ها و از دست دادن فرصت‌ها.</p>
+<p>راه‌حل‌هایی که مطرح می‌شه: استفاده از «دیدگاه بیرونی» (چقدر طول کشیده برای پروژه‌های مشابه؟)، اضافه کردن بافر زمانی آگاهانه، و پیش‌بینی موانع احتمالی قبل از شروع کار.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Kahneman & Tversky , Planning Fallacy (1979)</div><div class="rd">مقاله اصلی که این مفهوم رو معرفی کرد</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Thinking, Fast and Slow , Daniel Kahneman</div><div class="rd">فصل مفصلی درباره planning fallacy و inside vs outside view</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Optimism Bias , Tali Sharot</div><div class="rd">رابطه خوش‌بینی ذاتی با خطای برنامه‌ریزی</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Reference Class Forecasting , Bent Flyvbjerg</div><div class="rd">روش عملی استفاده از دیدگاه بیرونی برای تخمین دقیق‌تر زمان</div></div></li>
+</ul></div>
+</div>
+
+<!-- LECTURE 2 -->
+<div class="page" id="lec-decisions">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Lecture · Decision Making · Cognitive Psychology · Dr. Azarakhsh Mokri</div>
+  <h1 class="bp-title">تصمیم‌گیری آگاهانه در مقابل افکار خودکار</h1>
+  <div class="bp-auth">دکتر آذرخش مکری · February 2025 · 1h 32min</div>
+  <div class="badges"><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Decision Making</span><span class="badge" style="color:var(--gold);border-color:#c9a86c30;background:#c9a86c10">System 1 vs 2</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Cognitive Bias</span></div>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000688208835" target="_blank">▶ پادکست</a>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی</div><div class="bq">چقدر از تصمیم‌هایی که فکر می‌کنیم آگاهانه‌ان، در واقع خودکار و سوگیری‌دارن؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>این جلسه بخشی از سلسله همایش‌های «توسعه فردی» دکتر مکریه. موضوع اصلی تفاوت بین دو سیستم تفکره که کانمن معروفشون کرده: سیستم ۱ (خودکار، سریع، احساسی) و سیستم ۲ (آگاهانه، کند، منطقی).</p>
+<p>دکتر مکری از «مستهلک کردن» رفتارهای خودکار حرف می‌زنه — اینکه چطور می‌شه عادت‌های ذهنی ناکارآمد رو شناخت، از اتوماتیک بودن درشون، و اونا رو با آگاهی دوباره بازطراحی کرد. این فرآیند دردناکه چون یعنی باید از حالت راحت و خودکار بیرون بیای و انرژی ذهنی بذاری.</p>
+<p>یه بخش مهم درباره «سوگیری تأیید» (confirmation bias) هست، یعنی تمایل ذهن به دیدن شواهدی که باورهای قبلی ما رو تأیید می‌کنن و نادیده گرفتن شواهد مخالف. دکتر مکری توضیح می‌ده که این سوگیری چطور در تصمیم‌های مهم زندگی مثل انتخاب شغل، رابطه، یا مهاجرت نقش داره.</p>
+<p>بخش جذاب جلسه درباره «انگیزش و بی‌لذتیه» (anhedonia) — حالتی که آدم انگیزه‌ای برای هیچ چیزی نداره. دکتر مکری ارتباط بین این حالت و الگوهای تصمیم‌گیری خودکار رو توضیح می‌ده: وقتی همیشه از سیستم ۱ پیروی می‌کنیم، ممکنه وارد چرخه‌ای بشیم که دیگه هیچ چیزی معنادار به نظر نرسه.</p>
+<p>راهکار عملی: شناسایی تصمیم‌هایی که «خودکار» می‌گیریم، مکث آگاهانه قبل از اونا، و ارزیابی اینکه آیا این تصمیم واقعاً از ارزش‌های خودمون میاد یا از ترس، عادت، یا فشار اجتماعی.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Thinking, Fast and Slow , Daniel Kahneman</div><div class="rd">منبع اصلی مدل سیستم ۱ و ۲</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Confirmation Bias , Peter Wason (1960)</div><div class="rd">آزمایش کلاسیک که سوگیری تأیید رو اثبات کرد</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">جلسه اول سلسله همایش‌های توسعه فردی , دکتر مکری</div><div class="rd">وقتی در تصمیم‌گیری‌هایمان خطا می‌کنیم</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--teal)"></span><div><div class="rn">Before You Know It , John Bargh</div><div class="rd">کتاب مکمل در همین مجموعه , ناخودآگاه و تصمیم‌گیری</div></div></li>
+</ul></div>
+</div>
+
+<!-- LECTURE 3 -->
+<div class="page" id="lec-crisis">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Lecture · Resilience · Crisis · Dr. Azarakhsh Mokri · گفتگو با دکتر نریمان صدری</div>
+  <h1 class="bp-title">چه کسانی در بحران‌ها نمی‌شکنند؟</h1>
+  <div class="bp-auth">دکتر آذرخش مکری و دکتر نریمان صدری · September 2025 · بخش ۱ و ۲</div>
+  <div class="badges"><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Resilience</span><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Crisis Psychology</span><span class="badge" style="color:var(--green);border-color:#8e9e7230;background:#8e9e7210">Mental Strength</span></div>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000724424293" target="_blank">▶ بخش ۱</a>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000724128590" target="_blank">▶ بخش ۲</a>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی</div><div class="bq">چرا بعضی آدم‌ها در سخت‌ترین بحران‌ها می‌شکنن ولی بعضی نه, و این تفاوت از کجا میاد؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>این یه گفتگوی دو بخشیه بین دکتر مکری و دکتر نریمان صدری از زیمان. موضوع تاب‌آوری (resilience) هست, ولی نه به شکل کلیشه‌ای «مثبت فکر کن» , بلکه از دیدگاه علمی و بالینی.</p>
+<p>سوال اصلی اینه که چرا دو نفر با تجربه بحران مشابه, نتایج کاملاً متفاوت دارن؟ یکی می‌شکنه, دیگری نه. این تفاوت رو نمی‌شه فقط به «قوی بودن» یا «ضعیف بودن» نسبت داد.</p>
+<p>دکتر مکری از چند عامل مهم صحبت می‌کنه: اول «انعطاف‌پذیری شناختی» , توانایی تفسیر متفاوت یه موقعیت بد. آدم‌هایی که می‌تونن معنای مثبت‌تری از رویداد بسازن بدون اینکه واقعیت رو انکار کنن, بهتر کنار میان. این «بازسازی معنایی» یه مهارت قابل یادگیریه.</p>
+<p>دوم «شبکه حمایتی اجتماعی» , که تحقیقات نشون می‌ده یکی از مهم‌ترین عوامل تاب‌آوریه. نه لزوماً رابطه‌های زیاد, بلکه داشتن حداقل چند رابطه عمیق و قابل اعتماد.</p>
+<p>سوم «تجربه‌های بحران قبلی که از اونا عبور کردی». هر بحرانی که ازش گذشتی یه ذخیره روان‌شناختی می‌سازه , یه اثبات برای خودت که «می‌تونم». این بر خلاف تصور رایج که بحران همیشه آسیب‌زاست.</p>
+<p>بخش دوم گفتگو به «شکنندگی اجتماعی» در جوامع مثل ایران می‌پردازه , جایی که بحران‌های مزمن (اقتصادی, سیاسی, اجتماعی) ظرفیت تاب‌آوری رو تحلیل می‌برن. دکتر صدری از منظر روانپزشکی اجتماعی تحلیل می‌کنه که چطور بحران جمعی با بحران فردی تفاوت داره.</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">The End of Trauma , George Bonanno</div><div class="rd">کتاب مرتبط در همین مجموعه , تاب‌آوری از دیدگاه بالینی</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">Post-Traumatic Growth research , Tedeschi & Calhoun</div><div class="rd">رشد پس از تروما , چطور بحران می‌تونه به رشد منجر بشه</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">Social support & resilience meta-analyses</div><div class="rd">شواهد تجربی درباره نقش شبکه اجتماعی در تاب‌آوری</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--rose)"></span><div><div class="rn">Viktor Frankl , Man's Search for Meaning</div><div class="rd">بازسازی معنایی در شدیدترین بحران‌ها , تجربه اردوگاه‌های نازی</div></div></li>
+</ul></div>
+</div>
+
+<!-- LECTURE 4 -->
+<div class="page" id="lec-schizo">
+<button class="bp-back" onclick="go('home',null)">← بازگشت</button>
+<div class="bp-header">
+  <div class="bp-eyebrow">Lecture · History of Psychiatry · Schizophrenia · Dr. Azarakhsh Mokri</div>
+  <h1 class="bp-title">تاریخچه‌ی اسکیزوفرنی در روانپزشکی</h1>
+  <div class="bp-auth">دکتر آذرخش مکری · October 2024 · بخش ۱ و ۲</div>
+  <div class="badges"><span class="badge" style="color:var(--blue);border-color:#7a9db530;background:#7a9db510">History of Psychiatry</span><span class="badge" style="color:var(--teal);border-color:#8db4a330;background:#8db4a310">Schizophrenia</span><span class="badge" style="color:var(--rose);border-color:#b08fa030;background:#b08fa010">Diagnosis</span></div>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000673804893" target="_blank">▶ بخش ۱</a>
+  <a class="pl" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000673953719" target="_blank">▶ بخش ۲</a>
+</div>
+<div class="sec"><div class="sec-h">سوال اصلی</div><div class="bq">اسکیزوفرنی چه تاریخچه‌ای داره , و درک ما از اون طی ۱۵۰ سال گذشته چطور تغییر کرده؟</div></div>
+<div class="sec"><div class="sec-h">خلاصه کامل</div><div class="tb-fa">
+<p>این دو قسمت یه درسگفتار تاریخی از دکتر مکریه درباره اسکیزوفرنی , یکی از پیچیده‌ترین و بدفهمیده‌ترین اختلالات روانپزشکی.</p>
+<p>داستان از اواخر قرن ۱۹ شروع می‌شه. Emil Kraepelin , پدر روانپزشکی مدرن , اولین کسی بود که اختلالی رو که اون زمان «dementia praecox» می‌نامیدن رو از «manic-depressive insanity» جدا کرد. Kraepelin معتقد بود این یه بیماری رو به زوال تدریجیه.</p>
+<p>بعد Eugen Bleuler در ۱۹۱۱ اسم «schizophrenia» (شکاف ذهن) رو معرفی کرد. بلولر با کرپلین مخالف بود , اون معتقد بود بعضی از این بیماران می‌تونن بهبود پیدا کنن و نگاه بدبینانه کرپلین دقیق نیست. چهار «A»ی بلولر , Affect, Association, Autism, Ambivalence , هنوز هم تأثیرگذارن.</p>
+<p>دکتر مکری نشون می‌ده که در قرن ۲۰ , خصوصاً در آمریکا , تشخیص اسکیزوفرنی گسترش وسیعی پیدا کرد و به اشتباه به خیلی از اختلالاتی که امروز اسم جداگانه دارن داده شد. این «تشخیص بیش از حد» آسیب‌های جدی به بیماران زد.</p>
+<p>DSM-I و DSM-II تحت تأثیر روانکاوی بودن , در DSM-III با رویکرد توصیفی و ملاک‌های دقیق‌تر معیارها محدودتر شدن. این تغییر در ۱۹۸۰ یه انقلاب در روانپزشکی بود.</p>
+<p>در بخش دوم , دکتر مکری به بحث‌های جاری می‌پردازه: آیا اسکیزوفرنی یه بیماری واحده یا یه طیفه؟ آیا معیارهای فعلی DSM-5 کافین؟ و چه نقشی ژنتیک, عوامل محیطی, و تروما در ایجاد اون دارن؟</p>
+</div></div>
+<div class="sec"><div class="sec-h">منابع و ارجاعات</div><ul class="ref-list">
+<li class="ref-item"><span class="rdot" style="background:var(--blue)"></span><div><div class="rn">Emil Kraepelin , Dementia Praecox (1896)</div><div class="rd">اولین توصیف سیستماتیک اسکیزوفرنی</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--blue)"></span><div><div class="rn">Eugen Bleuler , Dementia Praecox or the Group of Schizophrenias (1911)</div><div class="rd">معرفی اسم «schizophrenia» و چهار A</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--blue)"></span><div><div class="rn">DSM-III (1980) , Robert Spitzer</div><div class="rd">انقلاب در روانپزشکی , از روانکاوی به توصیف بیولوژیک</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--blue)"></span><div><div class="rn">Robert Whitaker , Mad in America</div><div class="rd">نقد تاریخی رویکرد روانپزشکی به اسکیزوفرنی</div></div></li>
+<li class="ref-item"><span class="rdot" style="background:var(--blue)"></span><div><div class="rn">The Madness and Civilization , Michel Foucault</div><div class="rd">نگاه فلسفی به تاریخ روانپزشکی و دیوانگی</div></div></li>
+</ul></div>
+</div>
+
+</main>
+</div>
+
+<script>
+function go(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  const pg = document.getElementById(id);
+  if (pg) pg.classList.add('active');
+  if (el) { el.classList.add('active'); }
+  else {
+    const map = {'home':0,'superbloom':1,'ideological-brain':2,'look-again':3,'before-you-know-it':4,'suggestible-brain':5,'end-of-trauma':6,'mattering':7,'dog-wolf':8,'market-wizards-1':9,'market-wizards-2':10,'trading-zone':11,'global-macro':12,'algo-trading':13,'ml-finance':14,'when-money-dies':15,'end-times':16,'war-peace-war':17,'veronika':18,'lec-time':19,'lec-decisions':20,'lec-crisis':21,'lec-schizo':22};
+    const items = document.querySelectorAll('.sb-item');
+    if (map[id]!==undefined && items[map[id]]) items[map[id]].classList.add('active');
+  }
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
