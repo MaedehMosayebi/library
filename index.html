@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>کتابخانه من · My Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0e;
+    --surface: #191918;
+    --surface2: #222220;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8e4dc;
+    --text2: #9a9488;
+    --text3: #5c5952;
+    --accent: #c9a86c;
+    --accent2: #8db4a3;
+    --accent3: #b08fa0;
+    --accent4: #7a9db5;
+    --accent5: #a87c6e;
+    --accent6: #8e9e72;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* LAYOUT */
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 32px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .main {
+    flex: 1;
+    padding: 48px 56px;
+    max-width: 900px;
+  }
+
+  /* SIDEBAR */
+  .sidebar-header {
+    padding: 0 24px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .sidebar-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .sidebar-sub {
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .sidebar-section {
+    padding: 8px 24px 4px;
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 24px;
+    cursor: pointer;
+    border-radius: 0;
+    transition: background 0.15s;
+    font-size: 13px;
+    color: var(--text2);
+    border-left: 2px solid transparent;
+    text-decoration: none;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active {
+    background: var(--surface2);
+    color: var(--text);
+    border-left-color: var(--accent);
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* HOMEPAGE */
+  .home-header { margin-bottom: 48px; }
+  .home-eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+  .home-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .home-title span { color: var(--accent); }
+  .home-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.75;
+    max-width: 520px;
+  }
+
+  /* CATEGORY SECTIONS */
+  .category-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text3);
+    margin-bottom: 16px;
+    margin-top: 40px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .book-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .book-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--card-accent, var(--accent));
+    border-radius: 10px 0 0 10px;
+  }
+  .book-card:hover {
+    background: var(--surface2);
+    border-color: var(--border2);
+    transform: translateY(-2px);
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .card-author {
+    font-size: 12px;
+    color: var(--text3);
+    margin-bottom: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .card-summary-fa {
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.7;
+    direction: rtl;
+    text-align: right;
+  }
+
+  /* BADGES */
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .badge {
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    border: 1px solid;
+  }
+
+  /* BOOK PAGE */
+  .book-page-back {
+    font-size: 12px;
+    color: var(--text3);
+    cursor: pointer;
+    margin-bottom: 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s;
+    background: none;
+    border: none;
+    font-family: inherit;
+  }
+  .book-page-back:hover { color: var(--accent); }
+  .book-page-header {
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .book-eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    margin-bottom: 10px;
+  }
+  .book-page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .book-page-author {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .section-block { margin-bottom: 32px; }
+  .section-heading {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text3);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .big-question {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.5;
+    font-style: italic;
+    padding: 24px 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    direction: rtl;
+    text-align: right;
+  }
+  .text-block {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.8;
+  }
+  .text-block-fa {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.9;
+    direction: rtl;
+    text-align: right;
+  }
+  .ref-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .ref-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 13px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .ref-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .ref-name { color: var(--text); font-weight: 500; }
+  .ref-desc { color: var(--text2); font-size: 12px; margin-top: 2px; }
+  .your-take-box {
+    background: var(--surface);
+    border: 1px dashed var(--border2);
+    border-radius: 10px;
+    padding: 20px 24px;
+    font-size: 13px;
+    color: var(--text3);
+    font-style: italic;
+    direction: rtl;
+    text-align: right;
+    line-height: 1.7;
+  }
+  .your-take-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    margin-bottom: 8px;
+    font-style: normal;
+  }
+  .podcast-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--accent);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    text-decoration: none;
+    transition: all 0.15s;
+    margin-top: 12px;
+    margin-right: 6px;
+  }
+  .podcast-link:hover { border-color: var(--accent); }
+
+  /* LECTURE CARD */
+  .lecture-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+  }
+  .lecture-title { font-size: 14px; color: var(--text); margin-bottom: 4px; }
+  .lecture-meta { font-size: 12px; color: var(--text3); }
+
+  /* CONTENTS ACCORDION */
+  .contents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  details.contents-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  details.contents-item[open] {
+    border-color: var(--border2);
+  }
+  details.contents-item summary {
+    padding: 14px 18px;
+    cursor: pointer;
+    list-style: none;
+    font-size: 14px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    user-select: none;
+  }
+  details.contents-item summary::-webkit-details-marker { display: none; }
+  details.contents-item summary::after {
+    content: '+';
+    color: var(--accent);
+    font-size: 18px;
+    font-weight: 300;
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+  }
+  details.contents-item[open] summary::after {
+    content: '−';
+  }
+  details.contents-item summary:hover {
+    background: var(--surface2);
+  }
+  .contents-item-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+    flex: 1;
+  }
+  .contents-item-body {
+    padding: 14px 18px 16px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.85;
+    border-top: 1px solid var(--border);
+    direction: rtl;
+    text-align: right;
+  }
+  .contents-item-body.ltr {
+    direction: ltr;
+    text-align: left;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  /* ANIMATIONS */
+  .page.active { animation: fadein 0.25s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">کتابخانه من</div>
+    <div class="sidebar-sub">My Reading Archive</div>
+  </div>
+
+  <div class="sidebar-section">Home</div>
+  <a class="sidebar-item active" onclick="showPage('home', this)">
+    <span class="dot" style="background:#c9a86c"></span> همه کتاب‌ها
+  </a>
+
+  <div class="sidebar-section">Psychology & Mind</div>
+  <a class="sidebar-item" onclick="showPage('book-superbloom', this)">
+    <span class="dot" style="background:#8db4a3"></span> Superbloom
+  </a>
+  <a class="sidebar-item" onclick="showPage('book-ideological-brain', this)">
+    <span class="dot" style="background:#8db4a3"></span> The Ideological Brain
+  </a>
+  <a class="sidebar-item" onclick="showPage('book-look-again', this)">
+    <span class="dot" style="background:#8db4a3"></span> Look Again
+  </a>
+  <a class="sidebar-item" onclick="showPage('book-before-you-know-it', this)">
+    <span class="dot" style="background:#8db4a3"></span> Before You Know It
+  </a>
+  <a class="sidebar-item" onclick="showPage('book-suggestible-brain', this)">
+    <span class="dot" style="background:#8db4a3"></span> The Suggestible Brain
+  </a>
+
+  <div class="sidebar-section">Trauma & Resilience</div>
+  <a class="sidebar-item" onclick="showPage('book-end-of-trauma', this)">
+    <span class="dot" style="background:#b08fa0"></span> The End of Trauma
+  </a>
+  <a class="sidebar-item" onclick="showPage('book-mattering', this)">
+    <span class="dot" style="background:#b08fa0"></span> Mattering
+  </a>
+
+  <div class="sidebar-section">Lectures & Articles</div>
+  <a class="sidebar-item" onclick="showPage('lectures', this)">
+    <span class="dot" style="background:#5c5952"></span> Dr. Mokri Lectures
+  </a>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="home">
+    <div class="home-header">
+      <div class="home-eyebrow">پادکست آذرخش مکری · Personal Archive</div>
+      <h1 class="home-title">کتاب‌هایی که<br><span>خوندم</span></h1>
+      <p class="home-desc">یه آرشیو شخصی از کتاب‌هایی که خوندم — با خلاصه فارسی، ایده‌های محوری، و منابع هر کتاب. همه از پادکست دکتر آذرخش مکری.</p>
+    </div>
+
+    <div class="category-label">Psychology, Society & Mind</div>
+    <div class="book-grid">
+
+      <div class="book-card" style="--card-accent: #8db4a3" onclick="showPage('book-superbloom', null)">
+        <div class="card-title">Superbloom</div>
+        <div class="card-author">Nicholas Carr · 2025</div>
+        <div class="badges">
+          <span class="badge" style="color:#8db4a3;border-color:#8db4a320;background:#8db4a310">Technology</span>
+          <span class="badge" style="color:#c9a86c;border-color:#c9a86c20;background:#c9a86c10">Society</span>
+        </div>
+        <div class="card-summary-fa">چرا شبکه‌های اجتماعی به جای همدلی، پُر از خشم و تقابلن؟ کار میگه مشکل اصلی اطلاعات نیست — مشکل سرعت و حذف اصطکاک از تصمیم‌گیری‌هاست.</div>
+      </div>
+
+      <div class="book-card" style="--card-accent: #8db4a3" onclick="showPage('book-ideological-brain', null)">
+        <div class="card-title">The Ideological Brain</div>
+        <div class="card-author">Leor Zmigrod · 2024</div>
+        <div class="badges">
+          <span class="badge" style="color:#8db4a3;border-color:#8db4a320;background:#8db4a310">Neuroscience</span>
+          <span class="badge" style="color:#b08fa0;border-color:#b08fa020;background:#b08fa010">Politics</span>
+        </div>
+        <div class="card-summary-fa">چرا بعضی آدم‌ها به ایدئولوژی‌های افراطی کشیده می‌شن؟ ذمیگرود از کمبریج میگه جواب تو ساختار مغزشونه — نه فقط محیط یا تربیت.</div>
+      </div>
+
+      <div class="book-card" style="--card-accent: #8db4a3" onclick="showPage('book-look-again', null)">
+        <div class="card-title">Look Again</div>
+        <div class="card-author">Sharot & Sunstein · 2024</div>
+        <div class="badges">
+          <span class="badge" style="color:#8db4a3;border-color:#8db4a320;background:#8db4a310">Psychology</span>
+          <span class="badge" style="color:#c9a86c;border-color:#c9a86c20;background:#c9a86c10">Behavior</span>
+        </div>
+        <div class="card-summary-fa">مغز ما به همه چیز عادت می‌کنه — چه خوب چه بد. این کتاب از قدرت تازگی و قطع عادت‌ها حرف می‌زنه.</div>
+      </div>
+
+      <div class="book-card" style="--card-accent: #8db4a3" onclick="showPage('book-before-you-know-it', null)">
+        <div class="card-title">Before You Know It</div>
+        <div class="card-author">John Bargh · 2017</div>
+        <div class="badges">
+          <span class="badge" style="color:#8db4a3;border-color:#8db4a320;background:#8db4a310">Unconscious</span>
+          <span class="badge" style="color:#c9a86c;border-color:#c9a86c20;background:#c9a86c10">Decision-making</span>
+        </div>
+        <div class="card-summary-fa">بیشتر از چیزی که فکر می‌کنیم، ناخودآگاهمون تصمیم می‌گیره. بارگ از ییل نشون می‌ده چطور.</div>
+      </div>
+
+      <div class="book-card" style="--card-accent: #8db4a3" onclick="showPage('book-suggestible-brain', null)">
+        <div class="card-title">The Suggestible Brain</div>
+        <div class="card-author">Amir Raz · 2023</div>
+        <div class="badges">
+          <span class="badge" style="color:#8db4a3;border-color:#8db4a320;background:#8db4a310">Neuroscience</span>
+          <span class="badge" style="color:#b08fa0;border-color:#b08fa020;background:#b08fa010">Placebo</span>
+        </div>
+        <div class="card-summary-fa">علم تلقین — چطور باور و انتظار، واقعاً مغز و جسم ما رو تغییر می‌ده. از دارونما تا هیپنوتیزم.</div>
+      </div>
+
+    </div>
+
+    <div class="category-label">Trauma, Resilience & Identity</div>
+    <div class="book-grid">
+
+      <div class="book-card" style="--card-accent: #b08fa0" onclick="showPage('book-end-of-trauma', null)">
+        <div class="card-title">The End of Trauma</div>
+        <div class="card-author">George Bonanno · 2021</div>
+        <div class="badges">
+          <span class="badge" style="color:#b08fa0;border-color:#b08fa020;background:#b08fa010">Trauma</span>
+          <span class="badge" style="color:#8e9e72;border-color:#8e9e7220;background:#8e9e7210">Resilience</span>
+        </div>
+        <div class="card-summary-fa">بونانو میگه ما درباره تروما بیش از حد بدبینیم. خیلی از آدم‌ها بعد از بحران، زودتر و بهتر از چیزی که فکر می‌کردیم برمی‌گردن.</div>
+      </div>
+
+      <div class="book-card" style="--card-accent: #b08fa0" onclick="showPage('book-mattering', null)">
+        <div class="card-title">Mattering</div>
+        <div class="card-author">Prilleltensky · 2023</div>
+        <div class="badges">
+          <span class="badge" style="color:#b08fa0;border-color:#b08fa020;background:#b08fa010">Identity</span>
+          <span class="badge" style="color:#c9a86c;border-color:#c9a86c20;background:#c9a86c10">Wellbeing</span>
+        </div>
+        <div class="card-summary-fa">چرا بعضی آدم‌ها احساس می‌کنن دیده نمی‌شن؟ این «نامرئی بودن» چه تاثیر عمیقی بر رفتار و سلامت روانشون داره؟</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =================== BOOK: SUPERBLOOM =================== -->
+  <div class="page" id="book-superbloom">
+    <button class="book-page-back" onclick="showPage('home', null)">← بازگشت به همه کتاب‌ها</button>
+    <div class="book-page-header">
+      <div class="book-eyebrow">Technology · Society · Psychology</div>
+      <h1 class="book-page-title">Superbloom</h1>
+      <div class="book-page-author">Nicholas Carr · W. W. Norton · 2025</div>
+      <div class="badges">
+        <span class="badge" style="color:#8db4a3;border-color:#8db4a330;background:#8db4a310">Technology</span>
+        <span class="badge" style="color:#c9a86c;border-color:#c9a86c30;background:#c9a86c10">Society</span>
+        <span class="badge" style="color:#b08fa0;border-color:#b08fa030;background:#b08fa010">Psychology</span>
+        <span class="badge" style="color:#7a9db5;border-color:#7a9db530;background:#7a9db510">Media</span>
+        <span class="badge" style="color:#a87c6e;border-color:#a87c6e30;background:#a87c6e10">Non-fiction</span>
+      </div>
+      <a class="podcast-link" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000711976522" target="_blank">▶ پادکست دکتر مکری</a>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">سوال اصلی کتاب</div>
+      <div class="big-question">چرا با وجود بیشترین ارتباط در تاریخ، بیشترین تنش، قطبی‌شدن و سوءتفاهم رو تجربه می‌کنیم؟</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">خلاصه فارسی</div>
+      <div class="text-block-fa">
+        کار میگه خوش‌بینی اولیه به شبکه‌های اجتماعی — که اگه همه به هم وصل بشن، همدلی و تفاهم میاد — محقق نشده. درست برعکسش اتفاق افتاده.<br><br>
+        وقتی اطلاعات زیاد می‌شه، توجه کمیاب می‌شه. برای جلب توجه، محتوا باید هیجانی‌تر باشه تا درست‌تر. اشتراک‌گذاری تکانه‌ای می‌شه. الگوریتم‌ها آتش می‌ریزن روی آتش. نتیجه: «سوپربلوم» — شکوفایی انفجاری باورهای مخرب و تعصب‌های قبیله‌ای.<br><br>
+        یه نکته مهم کار: اصطکاک طبیعی که ما رو به تأمل وادار می‌کرد از بین رفته. تو دوره نامه‌نویسی کاغذی وقت فکر کردن داشتی. حتی دکمه ریتوییت — که قبلاً نبود — رفتار جمعی رو عوض کرد.
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">محتوا · Core Ideas</div>
+      <div class="contents-list">
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">اطلاعات بیشتر = توجه کمتر — اقتصاد توجه</span>
+          </summary>
+          <div class="contents-item-body">
+            وقتی حجم محتوا انفجار پیدا می‌کنه، توجه انسانی تبدیل به کمیاب‌ترین منبع می‌شه. رقابت برای جلب این توجه، محتوا رو به سمت هیجانی‌تر و تکانه‌ای‌تر شدن سوق می‌ده — نه دقیق‌تر یا عمیق‌تر. کار این رو «اقتصاد توجه» می‌نامه.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">اصطکاک چرا مهمه؟ — وقتی تأخیر حذف می‌شه، تأمل هم حذف می‌شه</span>
+          </summary>
+          <div class="contents-item-body">
+            نامه‌نویسی کاغذی اصطکاک داشت: باید فکر می‌کردی، می‌نوشتی، پست می‌کردی. این اصطکاک، فضایی برای بازنگری می‌داد. شبکه‌های اجتماعی این فضا رو حذف کردن. حتی اضافه‌شدن دکمه ریتوییت — که قبلاً نبود — میزان اشتراک‌گذاری اطلاعات غلط رو به شکل چشمگیری بالا برد.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">مشکل اصلی محتوا نیست — مشکل رسانه است</span>
+          </summary>
+          <div class="contents-item-body">
+            کار با نگاه مک‌لوهان («رسانه همان پیام است») هم‌راستاست: ساختار پلتفرم مهم‌تر از محتوایی‌ه که روش منتشر می‌شه. الگوریتم‌ها برای حداکثرسازی درگیری طراحی شدن — و خشم، ترس، و تعجب بیشترین درگیری رو ایجاد می‌کنن.
+          </div>
+        </details>
+
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">منابع و ارجاعات کتاب</div>
+      <ul class="ref-list">
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">The Shallows — Nicholas Carr</div><div class="ref-desc">کتاب قبلی کار — چطور اینترنت تفکر عمیق رو می‌کشه</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Thinking, Fast and Slow — Daniel Kahneman</div><div class="ref-desc">سیستم ۱ (سریع/احساسی) و سیستم ۲ (کند/منطقی) — شبکه‌های اجتماعی ما رو در سیستم ۱ نگه می‌دارن</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Charles Horton Cooley (1897)</div><div class="ref-desc">جامعه‌شناسی که اولین بار اصطلاح «رسانه اجتماعی» رو ساخت — ۱۲۸ سال پیش</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Marshall McLuhan</div><div class="ref-desc">«رسانه همان پیام است» — کار این نگاه رو برای عصر دیجیتال به‌روز می‌کنه</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Twitter Retweet Button — Case Study</div><div class="ref-desc">یه دکمه ساده چطور میزان اشتراک‌گذاری اطلاعات غلط رو چند برابر کرد</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Sherry Turkle — Alone Together</div><div class="ref-desc">شبکه اجتماعی به عنوان «ماشین ضد همدلی»</div></div></li>
+      </ul>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">نظر من</div>
+      <div class="your-take-box">
+        <div class="your-take-label">✦ یادداشت شخصی</div>
+        اینجا بنویس چی از این کتاب بهت چسبید، کدوم ایده ذهنت رو درگیر کرد، یا کجا موافق نبودی...
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== BOOK: IDEOLOGICAL BRAIN =================== -->
+  <div class="page" id="book-ideological-brain">
+    <button class="book-page-back" onclick="showPage('home', null)">← بازگشت به همه کتاب‌ها</button>
+    <div class="book-page-header">
+      <div class="book-eyebrow">Neuroscience · Political Psychology</div>
+      <h1 class="book-page-title">The Ideological Brain</h1>
+      <div class="book-page-author">Leor Zmigrod · Cambridge University Press · 2024</div>
+      <div class="badges">
+        <span class="badge" style="color:#8db4a3;border-color:#8db4a330;background:#8db4a310">Neuroscience</span>
+        <span class="badge" style="color:#b08fa0;border-color:#b08fa030;background:#b08fa010">Politics</span>
+        <span class="badge" style="color:#c9a86c;border-color:#c9a86c30;background:#c9a86c10">Extremism</span>
+        <span class="badge" style="color:#7a9db5;border-color:#7a9db530;background:#7a9db510">Cognitive Science</span>
+      </div>
+      <a class="podcast-link" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000732126006" target="_blank">▶ پادکست دکتر مکری</a>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">سوال اصلی کتاب</div>
+      <div class="big-question">آیا گرایش به ایدئولوژی‌های افراطی ریشه‌ای بیولوژیک داره — یا فقط محصول محیط و شرایطه؟</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">خلاصه فارسی</div>
+      <div class="text-block-fa">
+        ذمیگرود از کمبریج دنبال اینه که چرا بعضی آدم‌ها بیشتر از بقیه به ایدئولوژی‌های سفت و سخت کشیده می‌شن — چه چپ چه راست چه مذهبی چه ضدمذهبی.<br><br>
+        کشف مهم: این آدم‌ها از نظر روانی و حتی عصب‌شناسی تفاوت دارن. سرسختی شناختی (cognitive rigidity)، کمتر تحمل ابهام داشتن، و نیاز بیشتر به قطعیت — اینا مشترکاتی هستن که بین افراطی‌های سیاسی مختلف می‌بینیم، حتی اگه ایدئولوژی‌هاشون کاملاً متضاد باشه.<br><br>
+        این نگاه، تصویر رایجی رو که ایدئولوژی رو فقط محصول فرهنگ و تربیت می‌دونه، به چالش می‌کشه.
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">محتوا · Core Ideas</div>
+      <div class="contents-list">
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">سرسختی شناختی — ویژگی مشترک تمام افراطی‌ها</span>
+          </summary>
+          <div class="contents-item-body">
+            ذمیگرود نشون می‌ده که افراطی‌های چپ و راست با هم تفاوت محتوایی دارن، اما یه ویژگی مشترک دارن: cognitive rigidity — سختی در تغییر ذهن، انعطاف کمتر در تفکر، و نیاز شدید به قطعیت. این یه ویژگی شناختی‌ه، نه فقط یه موضع سیاسی.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">تحمل ابهام — چرا بعضی‌ها با «نمی‌دانم» کنار می‌آن و بعضی‌ها نه؟</span>
+          </summary>
+          <div class="contents-item-body">
+            تحمل ابهام (tolerance for ambiguity) یه متغیر فردی مهمه. کسانی که تحمل ابهام کمتری دارن، بیشتر به سیستم‌های فکری ساده، قطعی، و همه-چیز-را-توضیح‌دهنده کشیده می‌شن — چون این سیستم‌ها اضطراب ناشی از نادانستن رو آروم می‌کنن.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">ایدئولوژی به مثابه‌ی آرامش‌بخش — نه فقط بینش سیاسی</span>
+          </summary>
+          <div class="contents-item-body">
+            ایدئولوژی برای مغز کارکرد روان‌شناختی داره: کاهش بار شناختی، پاسخ دادن به سوال‌های بزرگ، و ایجاد حس تعلق. این یعنی مبارزه با افراط‌گرایی صرفاً با ارائه اطلاعات بهتر کافی نیست — باید نیازهای روانی زیرین رو هم دید.
+          </div>
+        </details>
+
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">منابع و ارجاعات کتاب</div>
+      <ul class="ref-list">
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">پژوهش‌های Zmigrod در Cambridge</div><div class="ref-desc">مطالعات fMRI و آزمون‌های شناختی روی طیف‌های سیاسی مختلف</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Cognitive rigidity research</div><div class="ref-desc">تحقیقات درباره رابطه سرسختی شناختی و پذیرش باورهای افراطی</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Political psychology literature</div><div class="ref-desc">روانشناسی سیاسی — از اقتدارگرایی تا شخصیت باز</div></div></li>
+      </ul>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">نظر من</div>
+      <div class="your-take-box">
+        <div class="your-take-label">✦ یادداشت شخصی</div>
+        اینجا بنویس چی از این کتاب بهت چسبید...
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== BOOK: LOOK AGAIN =================== -->
+  <div class="page" id="book-look-again">
+    <button class="book-page-back" onclick="showPage('home', null)">← بازگشت به همه کتاب‌ها</button>
+    <div class="book-page-header">
+      <div class="book-eyebrow">Psychology · Behavior · Decision-making</div>
+      <h1 class="book-page-title">Look Again</h1>
+      <div class="book-page-author">Tali Sharot & Cass Sunstein · 2024</div>
+      <div class="badges">
+        <span class="badge" style="color:#8db4a3;border-color:#8db4a330;background:#8db4a310">Psychology</span>
+        <span class="badge" style="color:#c9a86c;border-color:#c9a86c30;background:#c9a86c10">Habit</span>
+        <span class="badge" style="color:#b08fa0;border-color:#b08fa030;background:#b08fa010">Attention</span>
+        <span class="badge" style="color:#8e9e72;border-color:#8e9e7230;background:#8e9e7210">Behavioral Science</span>
+      </div>
+      <a class="podcast-link" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000738994149" target="_blank">▶ پادکست دکتر مکری</a>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">سوال اصلی کتاب</div>
+      <div class="big-question">چرا مغز ما به همه چیز عادت می‌کنه — از لذت‌ها گرفته تا فاجعه‌ها — و چطور می‌شه این چرخه رو شکست؟</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">خلاصه فارسی</div>
+      <div class="text-block-fa">
+        شاروت (نوروساینتیست) و سانستاین (حقوقدان و نویسنده «تلنگر») با هم نوشتن که مغز ما ذاتاً به محرک‌های تکراری حساسیتش رو از دست می‌ده — چه اون محرک یه رابطه خوب باشه، چه یه خطر واقعی.<br><br>
+        این «عادت‌کنندگی» می‌تونه خطرناک باشه: وقتی دیگه اخبار بد رو نمی‌بینیم، وقتی دیگه قدر چیزهای خوب رو نمی‌دونیم. راه‌حل: قطع کردن عمدی عادت، بازگشت‌های آگاهانه، و نگاه دوباره.
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">محتوا · Core Ideas</div>
+      <div class="contents-list">
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">habituation — مغز به همه چیز عادت می‌کنه، حتی به خوشبختی</span>
+          </summary>
+          <div class="contents-item-body">
+            سیستم عصبی ما برای تشخیص تغییر طراحی شده، نه برای حفظ توجه به چیزهای ثابت. این به معنیه که حتی بهترین چیزهای زندگی — رابطه، موفقیت، خانه — با گذشت زمان «دیده نمی‌شن». این habituation یه مکانیسم تکاملی‌ه، نه نقص شخصیتی.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">قطع عمدی عادت — چطور تازگی رو برگردانیم؟</span>
+          </summary>
+          <div class="contents-item-body">
+            شاروت و سانستاین نشون می‌دن که دوری عمدی (مثل مرخصی از یه رابطه، قطع موقت یه لذت) می‌تونه باعث بشه بعد از بازگشت، حس تازگی برگرده. این رو می‌شه به شکل آگاهانه در زندگی طراحی کرد.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">عادت به بحران — چرا اخبار بد دیگه شوکه‌مون نمی‌کنه؟</span>
+          </summary>
+          <div class="contents-item-body">
+            یه جنبه تاریک habituation: ما به بحران‌ها و بی‌عدالتی‌های تکراری هم عادت می‌کنیم. اخبار جنگ، آلودگی، نابرابری — اگه دائماً در معرضشون باشیم، کم‌کم واکنشمون کمتر می‌شه. این می‌تونه عامل بی‌تفاوتی اجتماعی باشه.
+          </div>
+        </details>
+
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">منابع و ارجاعات کتاب</div>
+      <ul class="ref-list">
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Nudge — Thaler & Sunstein</div><div class="ref-desc">کتاب معروف سانستاین درباره معماری انتخاب — پیش‌زمینه این کتاب</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Noise — Kahneman, Sibony & Sunstein</div><div class="ref-desc">کتاب قبلی سانستاین درباره خطاهای تصادفی در قضاوت</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Optimism Bias — Tali Sharot</div><div class="ref-desc">کار معروف شاروت درباره تعصب خوش‌بینی در مغز</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Habituation research in neuroscience</div><div class="ref-desc">تحقیقات پایه درباره چطور سیستم عصبی به تکرار پاسخ کمتری می‌ده</div></div></li>
+      </ul>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">نظر من</div>
+      <div class="your-take-box">
+        <div class="your-take-label">✦ یادداشت شخصی</div>
+        اینجا بنویس چی از این کتاب بهت چسبید...
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== BOOK: BEFORE YOU KNOW IT =================== -->
+  <div class="page" id="book-before-you-know-it">
+    <button class="book-page-back" onclick="showPage('home', null)">← بازگشت به همه کتاب‌ها</button>
+    <div class="book-page-header">
+      <div class="book-eyebrow">Psychology · Unconscious Mind</div>
+      <h1 class="book-page-title">Before You Know It</h1>
+      <div class="book-page-author">John Bargh · Simon & Schuster · 2017</div>
+      <div class="badges">
+        <span class="badge" style="color:#8db4a3;border-color:#8db4a330;background:#8db4a310">Unconscious</span>
+        <span class="badge" style="color:#c9a86c;border-color:#c9a86c30;background:#c9a86c10">Decision-making</span>
+        <span class="badge" style="color:#b08fa0;border-color:#b08fa030;background:#b08fa010">Social Psychology</span>
+        <span class="badge" style="color:#7a9db5;border-color:#7a9db530;background:#7a9db510">Priming</span>
+      </div>
+      <a class="podcast-link" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000688534635" target="_blank">▶ پادکست دکتر مکری</a>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">سوال اصلی کتاب</div>
+      <div class="big-question">تا چه اندازه تصمیم‌هایی که فکر می‌کنیم آگاهانه می‌گیریم، در واقع قبل از اینکه بفهمیم گرفته شدن؟</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">خلاصه فارسی</div>
+      <div class="text-block-fa">
+        بارگ از استادهای برجسته روانشناسی شناختی یِیل (Yale) دهه‌ها روی «پرایمینگ» کار کرده — اینکه چطور محرک‌های محیطی که حتی متوجه‌شون نمی‌شیم، رفتار و قضاوت ما رو شکل می‌دن.<br><br>
+        یه نمونه معروف: نگه داشتن یه نوشیدنی گرم باعث می‌شه نسبت به آدم‌های اطرافمون «گرم‌تر» احساس کنیم. یا اینکه نشستن روی صندلی سخت، در مذاکرات سخت‌گیرتر می‌شیم.<br><br>
+        بارگ استدلال می‌کنه که ناخودآگاه نه یه اتاق تاریک ترسناک فرویدیه، بلکه یه سیستم پردازشی سریع و کارآمده که اجدادمون رو زنده نگه می‌داشت.
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">محتوا · Core Ideas</div>
+      <div class="contents-list">
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">پرایمینگ — محیط قبل از تو تصمیم می‌گیره</span>
+          </summary>
+          <div class="contents-item-body">
+            پرایمینگ یعنی یه محرک قبلی (که ممکنه هیچ‌وقت متوجهش نشی) نحوه پاسخ به محرک بعدی رو تغییر می‌ده. آزمایش معروف بارگ: اگه قبل از یه مذاکره کلماتی مرتبط با پیری ببینی، کندتر راه می‌ری. این اثر رو حتی خودت احساس نمی‌کنی.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">ناخودآگاه فرویدی در برابر ناخودآگاه شناختی — دو تصویر کاملاً متفاوت</span>
+          </summary>
+          <div class="contents-item-body">
+            فروید ناخودآگاه رو جای سرکوب‌شده‌ها می‌دونست — تاریک، خطرناک، مملو از غریزه. بارگ نشون می‌ده ناخودآگاه بیشتر شبیه یه پردازشگر سریع و کارآمده که وظیفه‌اش کمک به بقاست. خنثی‌تر، کاربردی‌تر، و در واقع خیلی مفیدتر.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">محیط فیزیکی رفتار اجتماعی رو شکل می‌ده — گرما، سختی، وزن</span>
+          </summary>
+          <div class="contents-item-body">
+            نگه داشتن لیوان گرم آدم رو نسبت به غریبه‌ها گرم‌تر می‌کنه. نشستن روی صندلی سخت در مذاکره، موضع سخت‌تری می‌گیریم. حمل چیز سنگین باعث می‌شه موضوعات رو «جدی‌تر» ببینیم. این‌ها تصادفی نیستن — مغز از استعاره‌های فیزیکی برای درک انتزاعیات استفاده می‌کنه.
+          </div>
+        </details>
+
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">منابع و ارجاعات کتاب</div>
+      <ul class="ref-list">
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Bargh's Priming Experiments (Yale)</div><div class="ref-desc">تحقیقات کلاسیک درباره اثر پرایمینگ — از آزمایش صندلی گرفته تا کلمات مرتبط با پیری</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Thinking, Fast and Slow — Kahneman</div><div class="ref-desc">کتاب موازی — سیستم ۱ و ۲ تفکر</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Gazzaniga — split-brain research</div><div class="ref-desc">تحقیقات کلاسیک درباره نیمکره‌های مغز و توهم اراده آگاهانه</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Freud — The Unconscious</div><div class="ref-desc">بارگ با نگاه فرویدی مقایسه می‌کنه اما بینش متفاوتی ارائه می‌ده</div></div></li>
+      </ul>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">نظر من</div>
+      <div class="your-take-box">
+        <div class="your-take-label">✦ یادداشت شخصی</div>
+        اینجا بنویس چی از این کتاب بهت چسبید...
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== BOOK: SUGGESTIBLE BRAIN =================== -->
+  <div class="page" id="book-suggestible-brain">
+    <button class="book-page-back" onclick="showPage('home', null)">← بازگشت به همه کتاب‌ها</button>
+    <div class="book-page-header">
+      <div class="book-eyebrow">Neuroscience · Suggestion · Placebo</div>
+      <h1 class="book-page-title">The Suggestible Brain</h1>
+      <div class="book-page-author">Amir Raz · MIT Press · 2023</div>
+      <div class="badges">
+        <span class="badge" style="color:#8db4a3;border-color:#8db4a330;background:#8db4a310">Neuroscience</span>
+        <span class="badge" style="color:#b08fa0;border-color:#b08fa030;background:#b08fa010">Placebo</span>
+        <span class="badge" style="color:#c9a86c;border-color:#c9a86c30;background:#c9a86c10">Hypnosis</span>
+        <span class="badge" style="color:#7a9db5;border-color:#7a9db530;background:#7a9db510">Belief</span>
+      </div>
+      <a class="podcast-link" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000697488030" target="_blank">▶ پادکست دکتر مکری</a>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">سوال اصلی کتاب</div>
+      <div class="big-question">تا کجا باور و انتظار می‌تونن واقعیت فیزیولوژیک بدن ما رو تغییر بدن؟</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">خلاصه فارسی</div>
+      <div class="text-block-fa">
+        امیر راز — عصب‌شناس و شعبده‌بازِ سابق حرفه‌ای — این دو دنیا رو با هم آورده تا نشون بده تلقین واقعی‌ترین پدیده علمی‌یه که اغلب نادیده می‌گیریمش.<br><br>
+        دارونما حتی وقتی می‌دونیم دارونماست کار می‌کنه. هیپنوتیزم واقعاً فعالیت مغز رو تغییر می‌ده. انتظار ما از درد، درد رو تغییر می‌ده. انتظار ما از یه قرص، اثرش رو تغییر می‌ده.<br><br>
+        راز می‌گه این قدرت تلقین رو می‌شه برای بهبود سلامت، کاهش درد، و حتی مقاومت در برابر دستکاری رسانه‌ای استفاده کرد.
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">محتوا · Core Ideas</div>
+      <div class="contents-list">
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">open-label placebo — دارونما وقتی می‌دونی دارونماست هم کار می‌کنه</span>
+          </summary>
+          <div class="contents-item-body">
+            یکی از جالب‌ترین یافته‌های راز: حتی وقتی به بیمار می‌گویند «این قرص هیچ ماده فعالی ندارد»، اثر دارونما همچنان دیده می‌شه. این نشون می‌ده اثر دارونما به «فریب» نیاز نداره — بدن در پاسخ به ریچوال درمانی و انتظار خودش عمل می‌کنه.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">هیپنوتیزم یه حالت تغییریافته واقعیه — نه نمایش</span>
+          </summary>
+          <div class="contents-item-body">
+            تصویربرداری‌های fMRI نشون می‌ده هیپنوتیزم واقعاً الگوی فعالیت مغز رو تغییر می‌ده. مناطقی که مرتبط با کنترل ارادی هستند کم‌رنگ‌تر می‌شن، و پردازش حسی متفاوت می‌شه. این یه تجربه ذهنی صرف نیست.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">انتظار به عنوان دارو — نظام فکری ما جزئی از درمانه</span>
+          </summary>
+          <div class="contents-item-body">
+            راز استدلال می‌کنه که انتظار بیمار، نگرش پزشک، و محیط درمان همه بخش‌هایی از «درمان» هستند — نه عوامل کنفاندر که باید کنترل بشن. این یه چالش برای پزشکی مدرنه که می‌خواد همه چیز رو به مولکول‌ها تقلیل بده.
+          </div>
+        </details>
+
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">منابع و ارجاعات کتاب</div>
+      <ul class="ref-list">
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Placebo research — Irving Kirsch</div><div class="ref-desc">قوی‌ترین نقد به داروهای ضدافسردگی از منظر اثر دارونما</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Hypnosis & fMRI studies</div><div class="ref-desc">مطالعات تصویربرداری مغزی که نشون می‌ده هیپنوتیزم واقعاً فعالیت مغز رو تغییر می‌ده</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#8db4a3"></span><div><div class="ref-name">Expectation Effect — David Robson</div><div class="ref-desc">کتاب موازی درباره چطور انتظارات ما سلامتمون رو شکل می‌دن</div></div></li>
+      </ul>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">نظر من</div>
+      <div class="your-take-box">
+        <div class="your-take-label">✦ یادداشت شخصی</div>
+        اینجا بنویس چی از این کتاب بهت چسبید...
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== BOOK: END OF TRAUMA =================== -->
+  <div class="page" id="book-end-of-trauma">
+    <button class="book-page-back" onclick="showPage('home', null)">← بازگشت به همه کتاب‌ها</button>
+    <div class="book-page-header">
+      <div class="book-eyebrow">Clinical Psychology · Trauma · Resilience</div>
+      <h1 class="book-page-title">The End of Trauma</h1>
+      <div class="book-page-author">George Bonanno · Basic Books · 2021</div>
+      <div class="badges">
+        <span class="badge" style="color:#b08fa0;border-color:#b08fa030;background:#b08fa010">Trauma</span>
+        <span class="badge" style="color:#8e9e72;border-color:#8e9e7230;background:#8e9e7210">Resilience</span>
+        <span class="badge" style="color:#8db4a3;border-color:#8db4a330;background:#8db4a310">Clinical Psych</span>
+        <span class="badge" style="color:#c9a86c;border-color:#c9a86c30;background:#c9a86c10">PTSD critique</span>
+      </div>
+      <a class="podcast-link" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000728504667" target="_blank">▶ پادکست دکتر مکری (بخش ۱)</a>
+      <a class="podcast-link" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000728664578" target="_blank">▶ پادکست دکتر مکری (بخش ۲)</a>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">سوال اصلی کتاب</div>
+      <div class="big-question">آیا ما درباره آسیب‌پذیری انسان در برابر تروما اشتباه می‌کنیم — و توانایی بازگشت رو دست کم می‌گیریم؟</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">خلاصه فارسی</div>
+      <div class="text-block-fa">
+        بونانو از کلمبیا دهه‌ها روی سوگ و تروما کار کرده و رسیده به یه نتیجه غیرمنتظره: اکثر آدم‌ها بعد از رویدادهای ناگوار، تاب‌آوری قوی نشون می‌دن — نه PTSD.<br><br>
+        ادعای جنجالی‌تر: تروما اغلب با اختلال استرس پس از سانحه اشتباه گرفته می‌شه. بسیاری از آدم‌هایی که «باید» آسیب ببینن، نمی‌بینن. و ما با بیش‌از حد برچسب‌زدن، ممکنه خودمون تروما ایجاد کنیم.<br><br>
+        این کتاب نگاه رایج در روانپزشکی و روانشناسی درباره تروما رو به چالش می‌کشه.
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">محتوا · Core Ideas</div>
+      <div class="contents-list">
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">تاب‌آوری پیش‌فرض است، نه استثنا</span>
+          </summary>
+          <div class="contents-item-body">
+            بونانو از مطالعات بلندمدت روی بازماندگان ۱۱ سپتامبر، سوانح طبیعی، و از دست دادن عزیزان نشون داد که الگوی غالب «resilience» ـ یعنی برگشتن سریع به عملکرد نرمال ـ است، نه PTSD. ما این رو نمی‌بینیم چون آدم‌های دچار PTSD بیشتر به کلینیک می‌آن.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">انعطاف‌پذیری مقابله‌ای — flexibility در برابر انعطاف‌ناپذیری</span>
+          </summary>
+          <div class="contents-item-body">
+            بونانو مفهوم «coping flexibility» رو معرفی می‌کنه: توانایی تنظیم استراتژی مقابله با توجه به موقعیت. کسانی که تاب‌آورترند، از روش‌های مختلف مقابله استفاده می‌کنن — نه فقط «خوش‌بینی» یا «اجتناب». انعطاف در مقابله، نه یه روش ثابت، اصل کلیدیه.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">آیا برچسب زدن به تروما خودش آسیب‌رسانه؟</span>
+          </summary>
+          <div class="contents-item-body">
+            بونانو به چیزی می‌پردازه که «iatrogenic trauma» می‌نامه — یعنی آسیبی که از طریق مداخله درمانی ایجاد می‌شه. وقتی به همه کسانی که با یه رویداد دشوار روبرو شدن بگیم «تو احتمالاً آسیب دیدی»، ممکنه خودمون انتظاری ایجاد کنیم که به خودشکوفایی منفی تبدیل می‌شه.
+          </div>
+        </details>
+
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">منابع و ارجاعات کتاب</div>
+      <ul class="ref-list">
+        <li class="ref-item"><span class="ref-dot" style="background:#b08fa0"></span><div><div class="ref-name">Bonanno's longitudinal resilience studies</div><div class="ref-desc">مطالعات بلندمدت روی بازماندگان ۱۱ سپتامبر، از دست دادن همسر، و سوانح طبیعی</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#b08fa0"></span><div><div class="ref-name">DSM-5 PTSD criteria</div><div class="ref-desc">بونانو با معیارهای تشخیصی رایج PTSD بحث انتقادی دارد</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#b08fa0"></span><div><div class="ref-name">Judith Herman — Trauma and Recovery</div><div class="ref-desc">نقطه نظر کلاسیک درباره تروما که بونانو باهاش تفاوت دیدگاه داره</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#b08fa0"></span><div><div class="ref-name">Grief research — Kübler-Ross stages critique</div><div class="ref-desc">بونانو مراحل سوگ کوبلر-راس رو هم به چالش می‌کشه</div></div></li>
+      </ul>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">نظر من</div>
+      <div class="your-take-box">
+        <div class="your-take-label">✦ یادداشت شخصی</div>
+        اینجا بنویس چی از این کتاب بهت چسبید...
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== BOOK: MATTERING =================== -->
+  <div class="page" id="book-mattering">
+    <button class="book-page-back" onclick="showPage('home', null)">← بازگشت به همه کتاب‌ها</button>
+    <div class="book-page-header">
+      <div class="book-eyebrow">Psychology · Wellbeing · Identity</div>
+      <h1 class="book-page-title">Mattering</h1>
+      <div class="book-page-author">Isaac & Ora Prilleltensky · NYU Press · 2023</div>
+      <div class="badges">
+        <span class="badge" style="color:#b08fa0;border-color:#b08fa030;background:#b08fa010">Wellbeing</span>
+        <span class="badge" style="color:#c9a86c;border-color:#c9a86c30;background:#c9a86c10">Identity</span>
+        <span class="badge" style="color:#8db4a3;border-color:#8db4a330;background:#8db4a310">Social Psychology</span>
+        <span class="badge" style="color:#8e9e72;border-color:#8e9e7230;background:#8e9e7210">Belonging</span>
+      </div>
+      <a class="podcast-link" href="https://podcasts.apple.com/de/podcast/id1617116535?i=1000728976364" target="_blank">▶ پادکست دکتر مکری</a>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">سوال اصلی کتاب</div>
+      <div class="big-question">«مهم بودن» برای دیگران — نه موفقیت، نه ثروت — چطور عمیق‌ترین نیاز روانی ما رو شکل می‌ده؟</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">خلاصه فارسی</div>
+      <div class="text-block-fa">
+        پریللتنسکی‌ها میگن یه نیاز اساسی داریم که اغلب نادیده می‌گیریمش: حس کردن اینکه برای دیگران اهمیت داریم — «دیده شدن».<br><br>
+        وقتی این نیاز برآورده نمی‌شه — در خانواده، مدرسه، محل کار — آدم‌ها احساس نامرئی بودن می‌کنن. این نامرئی بودن با افسردگی، خشم، و حتی رفتارهای خشونت‌آمیز رابطه داره.<br><br>
+        جالب اینه که کتاب هم درباره نیاز فردی به اهمیت داشتن حرف می‌زنه، هم درباره نیاز به اینکه برای دیگران مهم باشی — که دو روی یه سکه‌ان.
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">محتوا · Core Ideas</div>
+      <div class="contents-list">
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">mattering = feeling valued + adding value — دو روی سکه</span>
+          </summary>
+          <div class="contents-item-body">
+            پریللتنسکی mattering رو در دو بعد تعریف می‌کنه: ۱) feeling valued — احساس کردن که برای دیگران اهمیت داری، و ۲) adding value — اینکه واقعاً به زندگی دیگران مشارکت کنی. هر دو برای سلامت روان لازمند. فقط یکی از دو بُعد کافی نیست.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">invisibility — نادیده گرفته شدن مثل درد فیزیکی در مغز ثبت می‌شه</span>
+          </summary>
+          <div class="contents-item-body">
+            تحقیقات نوروایمیجینگ نشون می‌ده طرد اجتماعی و نادیده گرفته شدن همان مناطقی از مغز رو که برای درد فیزیکی فعال می‌شه، فعال می‌کنه. یعنی «احساس می‌کنم وجود ندارم» یه استعاره نیست — یه تجربه بیولوژیک واقعیه.
+          </div>
+        </details>
+
+        <details class="contents-item">
+          <summary>
+            <span class="contents-item-title">mattering در محل کار — چرا آدم‌ها شغل خوب رو ترک می‌کنن؟</span>
+          </summary>
+          <div class="contents-item-body">
+            پریللتنسکی داده‌هایی نشون می‌ده که یکی از مهم‌ترین دلایل ترک شغل نه حقوق پایین، بلکه حس نادیده گرفته شدن توسط مدیر یا سازمانه. آدم‌ها حاضرند با حقوق کمتری کار کنند اگر احساس کنند که «مهم هستند».
+          </div>
+        </details>
+
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">منابع و ارجاعات کتاب</div>
+      <ul class="ref-list">
+        <li class="ref-item"><span class="ref-dot" style="background:#b08fa0"></span><div><div class="ref-name">Maslow's hierarchy — critique & extension</div><div class="ref-desc">نیاز به «اهمیت داشتن» در سلسله مراتب نیازهای مازلو کجا قرار می‌گیره؟</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#b08fa0"></span><div><div class="ref-name">Invisibility & social exclusion research</div><div class="ref-desc">تحقیقات روی اثر طرد اجتماعی بر مغز — درد اجتماعی مثل درد فیزیکی فعال‌شون می‌کنه</div></div></li>
+        <li class="ref-item"><span class="ref-dot" style="background:#b08fa0"></span><div><div class="ref-name">School belonging research</div><div class="ref-desc">ارتباط حس اهمیت داشتن در مدرسه با پیشرفت تحصیلی و سلامت روان</div></div></li>
+      </ul>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">نظر من</div>
+      <div class="your-take-box">
+        <div class="your-take-label">✦ یادداشت شخصی</div>
+        اینج�� بنویس چی از این کتاب بهت چسبید...
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== LECTURES =================== -->
+  <div class="page" id="lectures">
+    <button class="book-page-back" onclick="showPage('home', null)">← بازگشت به همه کتاب‌ها</button>
+    <div class="book-page-header">
+      <div class="book-eyebrow">Dr. Azarakhsh Mokri · Standalone Episodes</div>
+      <h1 class="book-page-title">Lectures & Articles</h1>
+      <div class="book-page-author">پادکست آذرخش مکری — قسمت‌های غیر کتابی</div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-heading">مجموعه قسمت‌ها</div>
+
+      <div class="lecture-card">
+        <div class="lecture-title">چرا آخرش وقت کم می‌آوریم؟</div>
+        <div class="lecture-meta">March 2025 · 1h 30min · روانشناسی زمان و تعلل</div>
+      </div>
+
+      <div class="lecture-card">
+        <div class="lecture-title">تصمیم‌گیری آگاهانه در مقابل افکار خودکار</div>
+        <div class="lecture-meta">February 2025 · 1h 32min · سیستم ۱ و ۲ در تصمیم‌گیری</div>
+      </div>
+
+      <div class="lecture-card">
+        <div class="lecture-title">چه کسانی در بحران‌ها نمی‌شکنند؟ (بخش ۱ و ۲)</div>
+        <div class="lecture-meta">September 2025 · گفتگو با دکتر نریمان صدری · تاب‌آوری در بحران</div>
+      </div>
+
+      <div class="lecture-card">
+        <div class="lecture-title">تاریخچه‌ی اسکیزوفرنی در روانپزشکی (بخش ۱ و ۲)</div>
+        <div class="lecture-meta">October 2024 · تاریخ روانپزشکی · از Emil Kraepelin تا DSM</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+function showPage(id, clickedEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (clickedEl) clickedEl.classList.add('active');
+  else {
+    const map = {
+      'home': 0,
+      'book-superbloom': 2, 'book-ideological-brain': 3, 'book-look-again': 4,
+      'book-before-you-know-it': 5, 'book-suggestible-brain': 6,
+      'book-end-of-trauma': 8, 'book-mattering': 9,
+      'lectures': 11
+    };
+    const items = document.querySelectorAll('.sidebar-item');
+    if (map[id] !== undefined && items[map[id]]) items[map[id]].classList.add('active');
+  }
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
